@@ -74,7 +74,7 @@ describe 'Image Write:', ->
 					progressSpy = m.sinon.spy()
 					emitter.on('progress', progressSpy)
 
-					# A tiny timeout is needed for the
+					# A timeout is needed for the
 					# progress event to be emitted.
 					setTimeout ->
 						m.chai.expect(progressSpy).to.have.been.called
@@ -90,7 +90,7 @@ describe 'Image Write:', ->
 							transferred: Number
 						m.chai.expect(state.length).to.equal(26)
 						done()
-					, 1
+					, 500
 
 			describe 'given a stream with a length property', ->
 
@@ -109,4 +109,4 @@ describe 'Image Write:', ->
 						state = progressSpy.firstCall.args[0]
 						m.chai.expect(state.length).to.equal(26)
 						done()
-					, 1
+					, 500
