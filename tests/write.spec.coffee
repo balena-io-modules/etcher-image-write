@@ -46,7 +46,8 @@ describe 'Image Write:', ->
 							contents = contents.replace(/\0/g, '')
 
 							m.chai.expect(contents).to.equal('Lorem ipsum dolor sit amet')
-							done()
+
+						.nodeify(done)
 
 				describe 'given an error when writing the stream', ->
 
