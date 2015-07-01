@@ -30,11 +30,23 @@ describe 'Image Write:', ->
 					@stream = stringToStream('Lorem ipsum dolor sit amet')
 
 				it 'should be able to write the stream to a device', (done) ->
+
+					# The operation takes some time on Windows for some reason.
+					# By increasing the default timeout (2s) we make sure we
+					# give Windows some space to do it's job.
+					this.timeout(8000)
+
 					emitter = imageWrite.write(@device.name, @stream)
 					emitter.on 'done', =>
-						filePromise = fs.readFileAsync(@device.name, encoding: 'utf8')
-						m.chai.expect(filePromise).to.eventually.equal('Lorem ipsum dolor sit amet')
-						done()
+						fs.readFileAsync(@device.name, encoding: 'utf8').then (contents) ->
+
+							# Windows, NodeJS v0.10, reads the file with some
+							# trailing null bytes in some cases.
+							# We make sure to remove them before checking the content.
+							contents = contents.replace(/\0/g, '')
+
+							m.chai.expect(contents).to.equal('Lorem ipsum dolor sit amet')
+							done()
 
 				describe 'given an error when writing the stream', ->
 
