@@ -93,6 +93,9 @@ exports.write = function(device, stream) {
   var emitter, progress, size, _ref, _ref1;
   emitter = new EventEmitter();
   size = stream.length || ((_ref = stream.responseContent) != null ? (_ref1 = _ref.headers) != null ? _ref1['content-length'] : void 0 : void 0);
+  if (size == null) {
+    throw new Error('Stream size missing');
+  }
   progress = progressStream({
     length: _.parseInt(size),
     time: 500
