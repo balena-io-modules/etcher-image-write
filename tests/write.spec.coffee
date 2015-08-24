@@ -24,10 +24,23 @@ describe 'Image Write:', ->
 			after ->
 				@device.removeCallback()
 
+			describe 'given a valid stream without size information', ->
+
+				beforeEach ->
+					message = 'Lorem ipsum dolor sit amet'
+					@stream = stringToStream(message)
+
+				it 'should throw an error', ->
+					m.chai.expect =>
+						imageWrite.write(@device.name, @stream)
+					.to.throw('Stream size missing')
+
 			describe 'given a valid stream', ->
 
 				beforeEach ->
-					@stream = stringToStream('Lorem ipsum dolor sit amet')
+					message = 'Lorem ipsum dolor sit amet'
+					@stream = stringToStream(message)
+					@stream.length = Buffer.byteLength(message)
 
 				it 'should be able to write the stream to a device', (done) ->
 

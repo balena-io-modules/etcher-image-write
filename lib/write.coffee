@@ -87,6 +87,9 @@ exports.write = (device, stream) ->
 	# Support resin-request streams length automatically
 	size = stream.length or stream.responseContent?.headers?['content-length']
 
+	if not size?
+		throw new Error('Stream size missing')
+
 	progress = progressStream
 		length: _.parseInt(size)
 		time: 500
