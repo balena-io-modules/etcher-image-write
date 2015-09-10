@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git://github.com/resin-io/resin-image-write.git"
   },
+  "bin": {
+    "resin-image-write": "./bin/cli.js"
+  },
   "keywords": [
     "resin",
     "image",
@@ -17,7 +20,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "gulp test",
+    "test": "gulp test && coffee tests/e2e.coffee",
     "prepublish": "gulp build",
     "readme": "jsdoc2md --template doc/README.hbs build/write.js > README.md"
   },
@@ -37,12 +40,16 @@
     "resin-request": "^2.2.5",
     "resin-settings-client": "^3.0.0",
     "string-to-stream": "^1.0.1",
-    "tmp": "0.0.26"
+    "tmp": "0.0.26",
+    "wary": "^1.1.0"
+  },
+  "optionalDependencies": {
+    "diskpart": "^1.0.0"
   },
   "dependencies": {
     "bluebird": "^2.9.30",
-    "diskio": "^1.0.0",
     "lodash": "^3.10.0",
-    "progress-stream": "^1.1.1"
+    "progress-stream": "^1.1.1",
+    "stream-chunker": "^1.1.5"
   }
 }

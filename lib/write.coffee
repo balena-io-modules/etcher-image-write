@@ -27,10 +27,13 @@ THE SOFTWARE.
 ###
 
 EventEmitter = require('events').EventEmitter
+fs = require('fs')
 _ = require('lodash')
 Promise = require('bluebird')
-diskio = Promise.promisifyAll(require('diskio'))
 progressStream = require('progress-stream')
+StreamChunker = require('stream-chunker')
+utils = require('./utils')
+win32 = require('./win32')
 
 ###*
 # @summary Write a readable stream to a device
@@ -59,17 +62,16 @@ progressStream = require('progress-stream')
 # - `error`: An error event.
 # - `done`: An event emitted when the readable stream was written completely.
 #
-# This function is smart enough to auto read the length of the readable stream if it was created by [resin-request](https://github.com/resin-io/resin-request).
-#
 # If you're passing a readable stream from a custom location, you can configure the length by adding a `.length` number property to the stream.
-#
-# Lacking length information on the stream results on incomplete progress state information.
 #
 # @param {String} device - device
 # @param {ReadStream} stream - readable stream
 # @returns {EventEmitter} emitter
 #
 # @example
+# myStream = fs.createReadStream('my/image')
+# myStream.length = fs.statAsync('my/image').size
+#
 # emitter = imageWrite.write('/dev/disk2', myStream)
 #
 # emitter.on 'progress', (state) ->
@@ -84,22 +86,25 @@ progressStream = require('progress-stream')
 exports.write = (device, stream) ->
 	emitter = new EventEmitter()
 
-	# Support resin-request streams length automatically
-	size = stream.length or stream.responseContent?.headers?['content-length']
-
-	if not size?
+	if not stream.length?
 		throw new Error('Stream size missing')
 
 	progress = progressStream
-		length: _.parseInt(size)
+		length: _.parseInt(stream.length)
 		time: 500
 
 	progress.on 'progress', (state) ->
 		emitter.emit('progress', state)
 
-	stream.pipe(progress)
-
-	diskio.writeStreamAsync(device, progress).then ->
+	utils.eraseMBR(device).then(win32.prepare).then ->
+		Promise.fromNode (callback) ->
+			stream
+				.pipe(progress)
+				.pipe(StreamChunker(512 * 2, flush: true))
+				.pipe(fs.createWriteStream(device, flags: 'rs+'))
+				.on('close', callback)
+				.on('error', callback)
+	.then(win32.prepare).then ->
 		emitter.emit('done')
 
 	.catch (error) ->
