@@ -49,11 +49,7 @@ The returned EventEmitter instance emits the following events:
 - `error`: An error event.
 - `done`: An event emitted when the readable stream was written completely.
 
-This function is smart enough to auto read the length of the readable stream if it was created by [resin-request](https://github.com/resin-io/resin-request).
-
 If you're passing a readable stream from a custom location, you can configure the length by adding a `.length` number property to the stream.
-
-Lacking length information on the stream results on incomplete progress state information.
 
 **Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
 **Summary**: Write a readable stream to a device  
@@ -67,6 +63,9 @@ Lacking length information on the stream results on incomplete progress state in
 
 **Example**  
 ```js
+myStream = fs.createReadStream('my/image')
+myStream.length = fs.statAsync('my/image').size
+
 emitter = imageWrite.write('/dev/disk2', myStream)
 
 emitter.on 'progress', (state) ->

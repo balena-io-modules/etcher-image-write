@@ -26,17 +26,23 @@ THE SOFTWARE.
 /**
  * @module imageWrite
  */
-var EventEmitter, Promise, diskio, progressStream, _;
+var EventEmitter, Promise, StreamChunker, fs, progressStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
+
+fs = require('fs');
 
 _ = require('lodash');
 
 Promise = require('bluebird');
 
-diskio = Promise.promisifyAll(require('diskio'));
-
 progressStream = require('progress-stream');
+
+StreamChunker = require('stream-chunker');
+
+utils = require('./utils');
+
+win32 = require('./win32');
 
 
 /**
@@ -66,17 +72,16 @@ progressStream = require('progress-stream');
  * - `error`: An error event.
  * - `done`: An event emitted when the readable stream was written completely.
  *
- * This function is smart enough to auto read the length of the readable stream if it was created by [resin-request](https://github.com/resin-io/resin-request).
- *
  * If you're passing a readable stream from a custom location, you can configure the length by adding a `.length` number property to the stream.
- *
- * Lacking length information on the stream results on incomplete progress state information.
  *
  * @param {String} device - device
  * @param {ReadStream} stream - readable stream
  * @returns {EventEmitter} emitter
  *
  * @example
+ * myStream = fs.createReadStream('my/image')
+ * myStream.length = fs.statAsync('my/image').size
+ *
  * emitter = imageWrite.write('/dev/disk2', myStream)
  *
  * emitter.on 'progress', (state) ->
@@ -90,21 +95,27 @@ progressStream = require('progress-stream');
  */
 
 exports.write = function(device, stream) {
-  var emitter, progress, size, _ref, _ref1;
+  var emitter, progress;
   emitter = new EventEmitter();
-  size = stream.length || ((_ref = stream.responseContent) != null ? (_ref1 = _ref.headers) != null ? _ref1['content-length'] : void 0 : void 0);
-  if (size == null) {
+  if (stream.length == null) {
     throw new Error('Stream size missing');
   }
   progress = progressStream({
-    length: _.parseInt(size),
+    length: _.parseInt(stream.length),
     time: 500
   });
   progress.on('progress', function(state) {
     return emitter.emit('progress', state);
   });
-  stream.pipe(progress);
-  diskio.writeStreamAsync(device, progress).then(function() {
+  utils.eraseMBR(device).then(win32.prepare).then(function() {
+    return Promise.fromNode(function(callback) {
+      return stream.pipe(progress).pipe(StreamChunker(512 * 2, {
+        flush: true
+      })).pipe(fs.createWriteStream(device, {
+        flags: 'rs+'
+      })).on('close', callback).on('error', callback);
+    });
+  }).then(win32.prepare).then(function() {
     return emitter.emit('done');
   })["catch"](function(error) {
     return emitter.emit('error', error);
