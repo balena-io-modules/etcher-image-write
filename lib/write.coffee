@@ -96,11 +96,13 @@ exports.write = (device, stream) ->
 	progress.on 'progress', (state) ->
 		emitter.emit('progress', state)
 
+	chunkSize = 65536 * 16 # 64K * 16 = 1024K = 1M
+
 	utils.eraseMBR(device).then(win32.prepare).then ->
 		Promise.fromNode (callback) ->
 			stream
 				.pipe(progress)
-				.pipe(StreamChunker(512 * 2, flush: true))
+				.pipe(StreamChunker(chunkSize, flush: true))
 				.pipe(fs.createWriteStream(device, flags: 'rs+'))
 				.on('close', callback)
 				.on('error', callback)
