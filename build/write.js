@@ -95,7 +95,7 @@ win32 = require('./win32');
  */
 
 exports.write = function(device, stream) {
-  var emitter, progress;
+  var chunkSize, emitter, progress;
   emitter = new EventEmitter();
   if (stream.length == null) {
     throw new Error('Stream size missing');
@@ -107,9 +107,10 @@ exports.write = function(device, stream) {
   progress.on('progress', function(state) {
     return emitter.emit('progress', state);
   });
+  chunkSize = 65536 * 16;
   utils.eraseMBR(device).then(win32.prepare).then(function() {
     return Promise.fromNode(function(callback) {
-      return stream.pipe(progress).pipe(StreamChunker(512 * 2, {
+      return stream.pipe(progress).pipe(StreamChunker(chunkSize, {
         flush: true
       })).pipe(fs.createWriteStream(device, {
         flags: 'rs+'
