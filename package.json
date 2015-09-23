@@ -24,7 +24,7 @@
     "prepublish": "gulp build",
     "readme": "jsdoc2md --template doc/README.hbs build/write.js > README.md"
   },
-  "author": "Juan Cruz Viotti <juanchiviotti@gmail.com>",
+  "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "MIT",
   "devDependencies": {
     "coffee-script": "~1.8.0",
