@@ -58,3 +58,29 @@ exports.eraseMBR = function(device) {
     });
   });
 };
+
+
+/**
+ * @summary Get raw device file
+ * @function
+ * @protected
+ *
+ * @description
+ * This function only performs manipulations for OS X disks.
+ * See http://superuser.com/questions/631592/why-is-dev-rdisk-about-20-times-faster-than-dev-disk-in-mac-os-x
+ *
+ * @param {String} device - device
+ * @returns {String} raw device
+ *
+ * @example
+ * rawDevice = utils.getRawDevice('/dev/disk2')
+ */
+
+exports.getRawDevice = function(device) {
+  var match;
+  match = device.match(/\/dev\/disk(\d+)/);
+  if (match == null) {
+    return device;
+  }
+  return "/dev/rdisk" + match[1];
+};

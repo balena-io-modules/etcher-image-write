@@ -49,3 +49,23 @@ exports.eraseMBR = (device) ->
 			if bytesWritten isnt bufferSize
 				throw new Error("Bytes written: #{bytesWritten}, expected #{bufferSize}")
 			fs.closeAsync(fd)
+
+###*
+# @summary Get raw device file
+# @function
+# @protected
+#
+# @description
+# This function only performs manipulations for OS X disks.
+# See http://superuser.com/questions/631592/why-is-dev-rdisk-about-20-times-faster-than-dev-disk-in-mac-os-x
+#
+# @param {String} device - device
+# @returns {String} raw device
+#
+# @example
+# rawDevice = utils.getRawDevice('/dev/disk2')
+###
+exports.getRawDevice = (device) ->
+	match = device.match(/\/dev\/disk(\d+)/)
+	return device if not match?
+	return "/dev/rdisk#{match[1]}"
