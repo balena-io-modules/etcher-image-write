@@ -89,6 +89,8 @@ exports.write = (device, stream) ->
 	if not stream.length?
 		throw new Error('Stream size missing')
 
+	device = utils.getRawDevice(device)
+
 	progress = progressStream
 		length: _.parseInt(stream.length)
 		time: 500

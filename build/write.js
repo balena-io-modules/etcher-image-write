@@ -100,6 +100,7 @@ exports.write = function(device, stream) {
   if (stream.length == null) {
     throw new Error('Stream size missing');
   }
+  device = utils.getRawDevice(device);
   progress = progressStream({
     length: _.parseInt(stream.length),
     time: 500
