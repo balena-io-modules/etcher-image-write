@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.4] - 2015-10-05
+
+### Changed
+
+- Drastically increase speed on OS X by using raw devices.
+
 ## [2.0.3] - 2015-09-11
 
 ### Changed
@@ -28,6 +34,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[2.0.4]: https://github.com/resin-io/resin-image-write/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/resin-io/resin-image-write/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/resin-io/resin-image-write/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/resin-io/resin-image-write/compare/v2.0.0...v2.0.1
