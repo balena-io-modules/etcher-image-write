@@ -120,6 +120,9 @@ exports.write = function(device, stream) {
   }).then(win32.prepare).then(function() {
     return emitter.emit('done');
   })["catch"](function(error) {
+    if (error.code === 'EINVAL') {
+      error = new Error('Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io');
+    }
     return emitter.emit('error', error);
   });
   return emitter;
