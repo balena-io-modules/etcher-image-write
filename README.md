@@ -64,7 +64,7 @@ If you're passing a readable stream from a custom location, you can configure th
 **Example**  
 ```js
 myStream = fs.createReadStream('my/image')
-myStream.length = fs.statAsync('my/image').size
+myStream.length = fs.statSync('my/image').size
 
 emitter = imageWrite.write('/dev/disk2', myStream)
 
