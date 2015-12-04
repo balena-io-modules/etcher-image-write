@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.7] - 2015-12-04
+
+### Changed
+
+- Omit tests from NPM package.
+
 ## [2.0.6] - 2015-11-24
 
 - Upgrade `tmp` to v0.0.28.
@@ -44,6 +50,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[2.0.7]: https://github.com/resin-io/resin-image-write/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/resin-io/resin-image-write/compare/v2.0.5...v2.0.6
 [2.0.5]: https://github.com/resin-io/resin-image-write/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/resin-io/resin-image-write/compare/v2.0.3...v2.0.4
