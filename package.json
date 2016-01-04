@@ -25,7 +25,7 @@
     "readme": "jsdoc2md --template doc/README.hbs build/write.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "coffee-script": "~1.8.0",
     "gulp": "~3.8.10",
