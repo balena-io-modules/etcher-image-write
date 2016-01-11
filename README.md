@@ -6,6 +6,8 @@ resin-image-write
 [![Build Status](https://travis-ci.org/resin-io/resin-image-write.svg?branch=master)](https://travis-ci.org/resin-io/resin-image-write)
 [![Build status](https://ci.appveyor.com/api/projects/status/qkn859e7gcbo6lb9?svg=true)](https://ci.appveyor.com/project/jviotti/resin-image-write)
 
+Join our online chat at [![Gitter chat](https://badges.gitter.im/resin-io/chat.png)](https://gitter.im/resin-io/chat)
+
 Write a Resin.io image to a device.
 
 Role
