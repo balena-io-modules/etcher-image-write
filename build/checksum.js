@@ -66,6 +66,9 @@ exports.calculate = function(stream, options) {
       if (error != null) {
         return reject(error);
       }
+      if (typeof stream.close === "function") {
+        stream.close();
+      }
       return resolve(checksum.hex().toLowerCase());
     });
     slice = new SliceStream({

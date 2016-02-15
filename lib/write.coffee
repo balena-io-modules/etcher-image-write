@@ -63,7 +63,7 @@ checksum = require('./checksum')
 #
 # @example
 # myStream = fs.createReadStream('my/image')
-# myStream.length = fs.statAsync('my/image').size
+# myStream.length = fs.statSync('my/image').size
 #
 # emitter = imageWrite.write('/dev/disk2', myStream)
 #
@@ -142,7 +142,7 @@ exports.write = (device, stream) ->
 #
 # @example
 # myStream = fs.createReadStream('my/image')
-# myStream.length = fs.statAsync('my/image').size
+# myStream.length = fs.statSync('my/image').size
 #
 # imageWrite.check('/dev/disk2', myStream).then (success) ->
 # 	if success
@@ -157,6 +157,13 @@ exports.check = (device, stream) ->
 
 		return Promise.props
 			stream: checksum.calculate(stream, bytes: stream.length)
+
+			# Only calculate the checksum from the bytes that correspond
+			# to the original image size and not the whole drive since
+			# the drive might contain empty space that changes the
+			# resulting checksum.
+			# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
 			device: checksum.calculate(device, bytes: stream.length)
+
 	.then (checksums) ->
 		return checksums.stream is checksums.device

@@ -74,7 +74,7 @@ checksum = require('./checksum');
  *
  * @example
  * myStream = fs.createReadStream('my/image')
- * myStream.length = fs.statAsync('my/image').size
+ * myStream.length = fs.statSync('my/image').size
  *
  * emitter = imageWrite.write('/dev/disk2', myStream)
  *
@@ -148,7 +148,7 @@ exports.write = function(device, stream) {
  *
  * @example
  * myStream = fs.createReadStream('my/image')
- * myStream.length = fs.statAsync('my/image').size
+ * myStream.length = fs.statSync('my/image').size
  *
  * imageWrite.check('/dev/disk2', myStream).then (success) ->
  * 	if success

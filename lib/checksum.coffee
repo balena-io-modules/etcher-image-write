@@ -62,6 +62,15 @@ exports.calculate = (stream, options = {}) ->
 		checksum.on('error', reject)
 		checksum.on 'end', (error) ->
 			return reject(error) if error?
+
+			# Make sure to close the input stream.
+			# If we're only calculating a checksum of part
+			# of the input stream, then there will be
+			# remaining data and thus the stream will not
+			# close automatically, leading to the client
+			# application never exiting.
+			stream.close?()
+
 			resolve(checksum.hex().toLowerCase())
 
 		slice = new SliceStream
