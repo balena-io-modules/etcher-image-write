@@ -18,7 +18,7 @@ limitations under the License.
 /**
  * @module imageWrite
  */
-var EventEmitter, Promise, StreamChunker, fs, progressStream, utils, win32, _;
+var EventEmitter, Promise, StreamChunker, checksum, fs, progressStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -35,6 +35,8 @@ StreamChunker = require('stream-chunker');
 utils = require('./utils');
 
 win32 = require('./win32');
+
+checksum = require('./checksum');
 
 
 /**
@@ -118,4 +120,56 @@ exports.write = function(device, stream) {
     return emitter.emit('error', error);
   });
   return emitter;
+};
+
+
+/**
+ * @summary Write a readable stream to a device
+ * @function
+ * @public
+ *
+ * @description
+ * This function can be used after `write()` to ensure
+ * the image was successfully written to the device.
+ *
+ * This is checked by calculating and comparing checksums
+ * of both the original image and the data written to a device.
+ *
+ * Notice that if you just used `write()`, you usually have
+ * to create another readable stream from the image since
+ * the one used previously has all its data consumed already,
+ * so it will emit no `data` event, leading to false results.
+ *
+ * @param {String} device - device
+ * @param {ReadStream} stream - image readable stream
+ *
+ * @fulfil {Boolean} - whether the write was successful
+ * @returns {Promise}
+ *
+ * @example
+ * myStream = fs.createReadStream('my/image')
+ * myStream.length = fs.statAsync('my/image').size
+ *
+ * imageWrite.check('/dev/disk2', myStream).then (success) ->
+ * 	if success
+ * 		console.log('The write was successful')
+ */
+
+exports.check = function(device, stream) {
+  return Promise["try"](function() {
+    if (stream.length == null) {
+      throw new Error('Stream size missing');
+    }
+    device = fs.createReadStream(utils.getRawDevice(device));
+    return Promise.props({
+      stream: checksum.calculate(stream, {
+        bytes: stream.length
+      }),
+      device: checksum.calculate(device, {
+        bytes: stream.length
+      })
+    });
+  }).then(function(checksums) {
+    return checksums.stream === checksums.device;
+  });
 };

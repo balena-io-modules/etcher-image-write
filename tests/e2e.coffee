@@ -37,6 +37,47 @@ wary.it 'write() should be rejected if the stream has no length',
 
 	m.chai.expect(promise).to.be.rejectedWith('Stream size missing')
 
+wary.it 'check() should eventually be true on success',
+	random1: RANDOM1
+	random2: RANDOM2
+, (images) ->
+
+	Promise.fromNode (callback) ->
+		stream = fs.createReadStream(images.random1)
+		stream.length = fs.statSync(images.random1).size
+		writer = imageWrite.write(images.random2, stream)
+		writer.on('error', callback)
+		writer.on('done', callback)
+	.then ->
+
+		# Create a readable stream from the original image
+		# again since the previous one was already consumed
+		stream = fs.createReadStream(images.random1)
+		stream.length = fs.statSync(images.random1).size
+
+		return imageWrite.check(images.random2, stream)
+	.then (passed) ->
+		m.chai.expect(passed).to.be.true
+
+wary.it 'check() should eventually be false on failure',
+	random1: RANDOM1
+	random2: RANDOM2
+, (images) ->
+	stream = fs.createReadStream(images.random1)
+	stream.length = fs.statSync(images.random1).size
+
+	imageWrite.check(images.random2, stream).then (passed) ->
+		m.chai.expect(passed).to.be.false
+
+wary.it 'check() should be rejected if the stream has no length',
+	random1: RANDOM1
+	random2: RANDOM2
+, (images) ->
+	stream = fs.createReadStream(images.random1)
+	promise = imageWrite.check(images.random2, stream)
+	m.chai.expect(promise).to.be.rejectedWith('Stream size missing')
+
 wary.run().catch (error) ->
 	console.error(error.message)
+	console.error(error.stack)
 	process.exit(1)

@@ -29,6 +29,11 @@ $ npm install --save resin-image-write
 Documentation
 -------------
 
+
+* [imageWrite](#module_imageWrite)
+  * [.write(device, stream)](#module_imageWrite.write) ⇒ <code>EventEmitter</code>
+  * [.check(device, stream)](#module_imageWrite.check) ⇒ <code>Promise</code>
+
 <a name="module_imageWrite.write"></a>
 ### imageWrite.write(device, stream) ⇒ <code>EventEmitter</code>
 **NOTICE:** You might need to run this function as sudo/administrator to avoid permission issues.
@@ -78,6 +83,38 @@ emitter.on 'error', (error) ->
 
 emitter.on 'done', ->
 	console.log('Finished writing to device')
+```
+<a name="module_imageWrite.check"></a>
+### imageWrite.check(device, stream) ⇒ <code>Promise</code>
+This function can be used after `write()` to ensure
+the image was successfully written to the device.
+
+This is checked by calculating and comparing checksums
+of both the original image and the data written to a device.
+
+Notice that if you just used `write()`, you usually have
+to create another readable stream from the image since
+the one used previously has all its data consumed already,
+so it will emit no `data` event, leading to false results.
+
+**Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
+**Summary**: Write a readable stream to a device  
+**Access:** public  
+**Fulfil**: <code>Boolean</code> - whether the write was successful  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| device | <code>String</code> | device |
+| stream | <code>ReadStream</code> | image readable stream |
+
+**Example**  
+```js
+myStream = fs.createReadStream('my/image')
+myStream.length = fs.statAsync('my/image').size
+
+imageWrite.check('/dev/disk2', myStream).then (success) ->
+	if success
+		console.log('The write was successful')
 ```
 
 Support
