@@ -8,7 +8,7 @@ imageWrite = require('../lib/write')
 RANDOM1 = path.join(__dirname, 'images', '1.random')
 RANDOM2 = path.join(__dirname, 'images', '2.random')
 
-wary.it 'should be able to burn data to a file',
+wary.it 'write() should be able to burn data to a file',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
@@ -25,7 +25,7 @@ wary.it 'should be able to burn data to a file',
 		.then (results) ->
 			m.chai.expect(results.random1).to.deep.equal(results.random2)
 
-wary.it 'should be rejected if the stream has no length',
+wary.it 'write() should be rejected if the stream has no length',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
