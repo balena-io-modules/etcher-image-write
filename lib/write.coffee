@@ -26,6 +26,7 @@ progressStream = require('progress-stream')
 StreamChunker = require('stream-chunker')
 utils = require('./utils')
 win32 = require('./win32')
+checksum = require('./checksum')
 
 ###*
 # @summary Write a readable stream to a device
@@ -62,7 +63,7 @@ win32 = require('./win32')
 #
 # @example
 # myStream = fs.createReadStream('my/image')
-# myStream.length = fs.statAsync('my/image').size
+# myStream.length = fs.statSync('my/image').size
 #
 # emitter = imageWrite.write('/dev/disk2', myStream)
 #
@@ -115,3 +116,54 @@ exports.write = (device, stream) ->
 		emitter.emit('error', error)
 
 	return emitter
+
+###*
+# @summary Write a readable stream to a device
+# @function
+# @public
+#
+# @description
+# This function can be used after `write()` to ensure
+# the image was successfully written to the device.
+#
+# This is checked by calculating and comparing checksums
+# of both the original image and the data written to a device.
+#
+# Notice that if you just used `write()`, you usually have
+# to create another readable stream from the image since
+# the one used previously has all its data consumed already,
+# so it will emit no `data` event, leading to false results.
+#
+# @param {String} device - device
+# @param {ReadStream} stream - image readable stream
+#
+# @fulfil {Boolean} - whether the write was successful
+# @returns {Promise}
+#
+# @example
+# myStream = fs.createReadStream('my/image')
+# myStream.length = fs.statSync('my/image').size
+#
+# imageWrite.check('/dev/disk2', myStream).then (success) ->
+# 	if success
+# 		console.log('The write was successful')
+###
+exports.check = (device, stream) ->
+	Promise.try ->
+		if not stream.length?
+			throw new Error('Stream size missing')
+
+		device = fs.createReadStream(utils.getRawDevice(device))
+
+		return Promise.props
+			stream: checksum.calculate(stream, bytes: stream.length)
+
+			# Only calculate the checksum from the bytes that correspond
+			# to the original image size and not the whole drive since
+			# the drive might contain empty space that changes the
+			# resulting checksum.
+			# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
+			device: checksum.calculate(device, bytes: stream.length)
+
+	.then (checksums) ->
+		return checksums.stream is checksums.device
