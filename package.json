@@ -3,10 +3,10 @@
   "version": "2.1.0",
   "description": "Write a Resin.io image to a device",
   "main": "build/write.js",
-  "homepage": "https://github.com/resin-io/resin-image-write",
+  "homepage": "https://github.com/resin-io-modules/resin-image-write",
   "repository": {
     "type": "git",
-    "url": "git://github.com/resin-io/resin-image-write.git"
+    "url": "git://github.com/resin-io-modules/resin-image-write.git"
   },
   "bin": {
     "resin-image-write": "./bin/cli.js"
