@@ -136,6 +136,19 @@ exports.write = (device, stream) ->
 #
 # The returned EventEmitter instance emits the following events:
 #
+# - `progress`: A progress event that passes a state object of the form:
+#
+# 	{
+# 		percentage: 9.05,
+# 		transferred: 949624,
+# 		length: 10485760,
+# 		remaining: 9536136,
+# 		eta: 10,
+# 		runtime: 0,
+# 		delta: 295396,
+# 		speed: 949624
+# 	}
+#
 # - `error`: An error event.
 # - `done`: An event emitted with a boolean value determining the result of the check.
 #
@@ -165,15 +178,25 @@ exports.check = (device, stream) ->
 
 		device = fs.createReadStream(utils.getRawDevice(device))
 
+		# Since both the image and device checksum calculation
+		# rely on the same input stream, we can safely send
+		# both progress states reports to the client at the same.
+		emitProgress = (state) ->
+			emitter.emit('progress', state)
+
 		return Promise.props
-			stream: checksum.calculate(stream, bytes: stream.length)
+			stream: checksum.calculate stream,
+				bytes: stream.length
+				progress: emitProgress
 
 			# Only calculate the checksum from the bytes that correspond
 			# to the original image size and not the whole drive since
 			# the drive might contain empty space that changes the
 			# resulting checksum.
 			# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
-			device: checksum.calculate(device, bytes: stream.length)
+			device: checksum.calculate device,
+				bytes: stream.length
+				progress: emitProgress
 
 	.then (checksums) ->
 		emitter.emit('done', checksums.stream is checksums.device)
