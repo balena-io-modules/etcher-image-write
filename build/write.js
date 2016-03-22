@@ -142,6 +142,19 @@ exports.write = function(device, stream) {
  *
  * The returned EventEmitter instance emits the following events:
  *
+ * - `progress`: A progress event that passes a state object of the form:
+ *
+ * 	{
+ * 		percentage: 9.05,
+ * 		transferred: 949624,
+ * 		length: 10485760,
+ * 		remaining: 9536136,
+ * 		eta: 10,
+ * 		runtime: 0,
+ * 		delta: 295396,
+ * 		speed: 949624
+ * 	}
+ *
  * - `error`: An error event.
  * - `done`: An event emitted with a boolean value determining the result of the check.
  *
@@ -167,16 +180,22 @@ exports.check = function(device, stream) {
   var emitter;
   emitter = new EventEmitter();
   Promise["try"](function() {
+    var emitProgress;
     if (stream.length == null) {
       throw new Error('Stream size missing');
     }
     device = fs.createReadStream(utils.getRawDevice(device));
+    emitProgress = function(state) {
+      return emitter.emit('progress', state);
+    };
     return Promise.props({
       stream: checksum.calculate(stream, {
-        bytes: stream.length
+        bytes: stream.length,
+        progress: emitProgress
       }),
       device: checksum.calculate(device, {
-        bytes: stream.length
+        bytes: stream.length,
+        progress: emitProgress
       })
     });
   }).then(function(checksums) {

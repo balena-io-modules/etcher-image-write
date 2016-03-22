@@ -14,13 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-var CRC32Stream, Promise, SliceStream, _;
+var CRC32Stream, Promise, SliceStream, progressStream, _;
 
 CRC32Stream = require('crc32-stream');
 
 SliceStream = require('slice-stream');
 
 Promise = require('bluebird');
+
+progressStream = require('progress-stream');
 
 _ = require('lodash');
 
@@ -35,6 +37,7 @@ _ = require('lodash');
  * @param {ReadableStream} stream - stream
  * @param {Object} options - options
  * @param {Number} options.bytes - bytes to calculate the checksum for
+ * @param {Function} [options.progress] - progress callback (state)
  *
  * @fulfil {String} - checksum
  * @returns {Promise}
@@ -43,6 +46,8 @@ _ = require('lodash');
  *
  * checksum.calculate fs.createReadStream('/dev/rdisk2'),
  * 	bytes: 1024 * 100
+ * 	progress: (state) ->
+ * 		console.log(state)
  * .then (result) ->
  * 	console.log(result)
  */
@@ -52,7 +57,7 @@ exports.calculate = function(stream, options) {
     options = {};
   }
   return new Promise(function(resolve, reject) {
-    var checksum, slice;
+    var checksum, progress, slice;
     if (options.bytes == null) {
       throw new Error('Missing bytes option');
     }
@@ -79,6 +84,11 @@ exports.calculate = function(stream, options) {
         return this.push(null);
       }
     });
-    return stream.pipe(slice).pipe(checksum);
+    progress = progressStream({
+      length: _.parseInt(options.bytes),
+      time: 500
+    });
+    progress.on('progress', options.progress || _.noop);
+    return stream.pipe(progress).pipe(slice).pipe(checksum);
   });
 };

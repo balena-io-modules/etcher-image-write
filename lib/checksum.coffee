@@ -17,6 +17,7 @@ limitations under the License.
 CRC32Stream = require('crc32-stream')
 SliceStream = require('slice-stream')
 Promise = require('bluebird')
+progressStream = require('progress-stream')
 _ = require('lodash')
 
 ###*
@@ -29,6 +30,7 @@ _ = require('lodash')
 # @param {ReadableStream} stream - stream
 # @param {Object} options - options
 # @param {Number} options.bytes - bytes to calculate the checksum for
+# @param {Function} [options.progress] - progress callback (state)
 #
 # @fulfil {String} - checksum
 # @returns {Promise}
@@ -37,6 +39,8 @@ _ = require('lodash')
 #
 # checksum.calculate fs.createReadStream('/dev/rdisk2'),
 # 	bytes: 1024 * 100
+# 	progress: (state) ->
+# 		console.log(state)
 # .then (result) ->
 # 	console.log(result)
 ###
@@ -79,4 +83,10 @@ exports.calculate = (stream, options = {}) ->
 			@push(buffer)
 			return @push(null) if isOnLimit
 
-		stream.pipe(slice).pipe(checksum)
+		progress = progressStream
+			length: _.parseInt(options.bytes)
+			time: 500
+
+		progress.on('progress', options.progress or _.noop)
+
+		stream.pipe(progress).pipe(slice).pipe(checksum)
