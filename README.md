@@ -32,7 +32,7 @@ Documentation
 
 * [imageWrite](#module_imageWrite)
   * [.write(device, stream)](#module_imageWrite.write) ⇒ <code>EventEmitter</code>
-  * [.check(device, stream)](#module_imageWrite.check) ⇒ <code>Promise</code>
+  * [.check(device, stream)](#module_imageWrite.check) ⇒ <code>EventEmitter</code>
 
 <a name="module_imageWrite.write"></a>
 ### imageWrite.write(device, stream) ⇒ <code>EventEmitter</code>
@@ -85,7 +85,7 @@ emitter.on 'done', ->
 	console.log('Finished writing to device')
 ```
 <a name="module_imageWrite.check"></a>
-### imageWrite.check(device, stream) ⇒ <code>Promise</code>
+### imageWrite.check(device, stream) ⇒ <code>EventEmitter</code>
 This function can be used after `write()` to ensure
 the image was successfully written to the device.
 
@@ -97,10 +97,15 @@ to create another readable stream from the image since
 the one used previously has all its data consumed already,
 so it will emit no `data` event, leading to false results.
 
+The returned EventEmitter instance emits the following events:
+
+- `error`: An error event.
+- `done`: An event emitted with a boolean value determining the result of the check.
+
 **Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
 **Summary**: Write a readable stream to a device  
+**Returns**: <code>EventEmitter</code> - - emitter  
 **Access:** public  
-**Fulfil**: <code>Boolean</code> - whether the write was successful  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -112,7 +117,12 @@ so it will emit no `data` event, leading to false results.
 myStream = fs.createReadStream('my/image')
 myStream.length = fs.statSync('my/image').size
 
-imageWrite.check('/dev/disk2', myStream).then (success) ->
+checker = imageWrite.check('/dev/disk2', myStream)
+
+checker.on 'error', (error) ->
+	console.error(error)
+
+checker.on 'done', (success) ->
 	if success
 		console.log('The write was successful')
 ```

@@ -140,23 +140,33 @@ exports.write = function(device, stream) {
  * the one used previously has all its data consumed already,
  * so it will emit no `data` event, leading to false results.
  *
+ * The returned EventEmitter instance emits the following events:
+ *
+ * - `error`: An error event.
+ * - `done`: An event emitted with a boolean value determining the result of the check.
+ *
  * @param {String} device - device
  * @param {ReadStream} stream - image readable stream
- *
- * @fulfil {Boolean} - whether the write was successful
- * @returns {Promise}
+ * @returns {EventEmitter} - emitter
  *
  * @example
  * myStream = fs.createReadStream('my/image')
  * myStream.length = fs.statSync('my/image').size
  *
- * imageWrite.check('/dev/disk2', myStream).then (success) ->
+ * checker = imageWrite.check('/dev/disk2', myStream)
+ *
+ * checker.on 'error', (error) ->
+ * 	console.error(error)
+ *
+ * checker.on 'done', (success) ->
  * 	if success
  * 		console.log('The write was successful')
  */
 
 exports.check = function(device, stream) {
-  return Promise["try"](function() {
+  var emitter;
+  emitter = new EventEmitter();
+  Promise["try"](function() {
     if (stream.length == null) {
       throw new Error('Stream size missing');
     }
@@ -170,6 +180,9 @@ exports.check = function(device, stream) {
       })
     });
   }).then(function(checksums) {
-    return checksums.stream === checksums.device;
+    return emitter.emit('done', checksums.stream === checksums.device);
+  })["catch"](function(error) {
+    return emitter.emit('error', error);
   });
+  return emitter;
 };
