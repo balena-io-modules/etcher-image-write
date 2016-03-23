@@ -29,20 +29,17 @@ $ npm install --save resin-image-write
 Documentation
 -------------
 
-
-* [imageWrite](#module_imageWrite)
-  * [.write(device, stream)](#module_imageWrite.write) ⇒ <code>EventEmitter</code>
-  * [.check(device, stream)](#module_imageWrite.check) ⇒ <code>EventEmitter</code>
-
 <a name="module_imageWrite.write"></a>
-### imageWrite.write(device, stream) ⇒ <code>EventEmitter</code>
-**NOTICE:** You might need to run this function as sudo/administrator to avoid permission issues.
+### imageWrite.write(device, stream, [options]) ⇒ <code>EventEmitter</code>
+**NOTICE:** You might need to run this function as sudo/administrator to
+avoid permission issues.
 
 The returned EventEmitter instance emits the following events:
 
 - `progress`: A progress event that passes a state object of the form:
 
 		{
+			type: 'write' // possible values: 'write', 'check'.
 			percentage: 9.05,
 			transferred: 949624,
 			length: 10485760,
@@ -54,26 +51,34 @@ The returned EventEmitter instance emits the following events:
 		}
 
 - `error`: An error event.
-- `done`: An event emitted when the readable stream was written completely.
+- `done`: An event emitted with a boolean success value.
 
-If you're passing a readable stream from a custom location, you can configure the length by adding a `.length` number property to the stream.
+If you're passing a readable stream from a custom location, you should
+configure the length by adding a `.length` number property to the stream.
+
+Enabling the `check` option is useful to ensure the image was
+successfully written to the device. This is checked by calculating and
+comparing checksums from both the original image and the data written
+to the device.
 
 **Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
 **Summary**: Write a readable stream to a device  
 **Returns**: <code>EventEmitter</code> - emitter  
 **Access:** public  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| device | <code>String</code> | device |
-| stream | <code>ReadStream</code> | readable stream |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| device | <code>String</code> |  | device |
+| stream | <code>ReadStream</code> |  | readable stream |
+| [options] | <code>Object</code> | <code>{}</code> | options |
+| [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
 
 **Example**  
 ```js
 myStream = fs.createReadStream('my/image')
 myStream.length = fs.statSync('my/image').size
 
-emitter = imageWrite.write('/dev/disk2', myStream)
+emitter = imageWrite.write('/dev/disk2', myStream, check: true)
 
 emitter.on 'progress', (state) ->
 	console.log(state)
@@ -81,50 +86,11 @@ emitter.on 'progress', (state) ->
 emitter.on 'error', (error) ->
 	console.error(error)
 
-emitter.on 'done', ->
-	console.log('Finished writing to device')
-```
-<a name="module_imageWrite.check"></a>
-### imageWrite.check(device, stream) ⇒ <code>EventEmitter</code>
-This function can be used after `write()` to ensure
-the image was successfully written to the device.
-
-This is checked by calculating and comparing checksums
-of both the original image and the data written to a device.
-
-Notice that if you just used `write()`, you usually have
-to create another readable stream from the image since
-the one used previously has all its data consumed already,
-so it will emit no `data` event, leading to false results.
-
-The returned EventEmitter instance emits the following events:
-
-- `error`: An error event.
-- `done`: An event emitted with a boolean value determining the result of the check.
-
-**Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
-**Summary**: Write a readable stream to a device  
-**Returns**: <code>EventEmitter</code> - - emitter  
-**Access:** public  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| device | <code>String</code> | device |
-| stream | <code>ReadStream</code> | image readable stream |
-
-**Example**  
-```js
-myStream = fs.createReadStream('my/image')
-myStream.length = fs.statSync('my/image').size
-
-checker = imageWrite.check('/dev/disk2', myStream)
-
-checker.on 'error', (error) ->
-	console.error(error)
-
-checker.on 'done', (success) ->
+emitter.on 'done', (success) ->
 	if success
-		console.log('The write was successful')
+		console.log('Success!')
+	else
+		console.log('Failed!')
 ```
 
 Support

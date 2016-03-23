@@ -13,28 +13,18 @@ function onError(error) {
 	process.exit(1);
 }
 
-function getImageStream() {
-	stream = fs.createReadStream(image);
-	stream.length = fs.statSync(image).size;
-	return stream;
-}
+stream = fs.createReadStream(image);
+stream.length = fs.statSync(image).size;
 
-imageWrite.write(drive, getImageStream())
+imageWrite.write(drive, stream, { check: true })
 	.on('error', onError)
 	.on('progress', function(state) {
-		console.log('Writing', state);
+		console.log(state);
 	})
-	.on('done', function() {
-		imageWrite.check(drive, getImageStream())
-			.on('error', onError)
-			.on('progress', function(state) {
-				console.log('Checking', state);
-			})
-			.on('done', function(success) {
-				if (success) {
-					console.log('Check passed');
-				} else {
-					console.error('Check failed');
-				}
-			});
+	.on('done', function(success) {
+		if (success) {
+			console.log('Check passed');
+		} else {
+			console.error('Check failed');
+		}
 	});
