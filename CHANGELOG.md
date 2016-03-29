@@ -14,7 +14,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Integrate checking to the `.write()` function.
 
-
 ### Removed
 
 - Remove `.check()`.
