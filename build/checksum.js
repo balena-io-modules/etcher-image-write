@@ -74,6 +74,18 @@ exports.calculate = function(stream, options) {
       if (typeof stream.close === "function") {
         stream.close();
       }
+      if (typeof options.progress === "function") {
+        options.progress({
+          percentage: 100,
+          transferred: options.bytes,
+          length: options.bytes,
+          remaining: 0,
+          eta: 0,
+          runtime: 0,
+          delta: 0,
+          speed: 0
+        });
+      }
       return resolve(checksum.hex().toLowerCase());
     });
     slice = new SliceStream({
