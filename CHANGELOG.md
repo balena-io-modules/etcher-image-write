@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 2016-03-29
+
+### Added
+
+- Add easy to use example script.
+- Report checking progress.
+
+### Changed
+
+- Integrate checking to the `.write()` function.
+
+
+### Removed
+
+- Remove `.check()`.
+
 ## [2.1.0] - 2016-02-16
 
 ### Added
@@ -56,6 +72,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[3.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.7...v2.1.0
 [2.0.7]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.6...v2.0.7
 [2.0.6]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.5...v2.0.6
