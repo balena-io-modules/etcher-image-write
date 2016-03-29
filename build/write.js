@@ -18,7 +18,7 @@ limitations under the License.
 /**
  * @module imageWrite
  */
-var EventEmitter, Promise, StreamChunker, checksum, fs, progressStream, utils, win32, _;
+var CHUNK_SIZE, EventEmitter, Promise, StreamChunker, checksum, denymount, fs, progressStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -32,11 +32,15 @@ progressStream = require('progress-stream');
 
 StreamChunker = require('stream-chunker');
 
+denymount = Promise.promisify(require('denymount'));
+
 utils = require('./utils');
 
 win32 = require('./win32');
 
 checksum = require('./checksum');
+
+CHUNK_SIZE = 65536 * 16;
 
 
 /**
@@ -46,13 +50,15 @@ checksum = require('./checksum');
  *
  * @description
  *
- * **NOTICE:** You might need to run this function as sudo/administrator to avoid permission issues.
+ * **NOTICE:** You might need to run this function as sudo/administrator to
+ * avoid permission issues.
  *
  * The returned EventEmitter instance emits the following events:
  *
  * - `progress`: A progress event that passes a state object of the form:
  *
  *		{
+ *			type: 'write' // possible values: 'write', 'check'.
  *			percentage: 9.05,
  *			transferred: 949624,
  *			length: 10485760,
@@ -64,19 +70,27 @@ checksum = require('./checksum');
  *		}
  *
  * - `error`: An error event.
- * - `done`: An event emitted when the readable stream was written completely.
+ * - `done`: An event emitted with a boolean success value.
  *
- * If you're passing a readable stream from a custom location, you can configure the length by adding a `.length` number property to the stream.
+ * If you're passing a readable stream from a custom location, you should
+ * configure the length by adding a `.length` number property to the stream.
+ *
+ * Enabling the `check` option is useful to ensure the image was
+ * successfully written to the device. This is checked by calculating and
+ * comparing checksums from both the original image and the data written
+ * to the device.
  *
  * @param {String} device - device
  * @param {ReadStream} stream - readable stream
+ * @param {Object} [options={}] - options
+ * @param {Boolean} [options.check=false] - enable write check
  * @returns {EventEmitter} emitter
  *
  * @example
  * myStream = fs.createReadStream('my/image')
  * myStream.length = fs.statSync('my/image').size
  *
- * emitter = imageWrite.write('/dev/disk2', myStream)
+ * emitter = imageWrite.write('/dev/disk2', myStream, check: true)
  *
  * emitter.on 'progress', (state) ->
  * 	console.log(state)
@@ -84,12 +98,18 @@ checksum = require('./checksum');
  * emitter.on 'error', (error) ->
  * 	console.error(error)
  *
- * emitter.on 'done', ->
- * 	console.log('Finished writing to device')
+ * emitter.on 'done', (success) ->
+ * 	if success
+ * 		console.log('Success!')
+ * 	else
+ * 		console.log('Failed!')
  */
 
-exports.write = function(device, stream) {
-  var chunkSize, emitter, progress;
+exports.write = function(device, stream, options) {
+  var emitter, progress;
+  if (options == null) {
+    options = {};
+  }
   emitter = new EventEmitter();
   if (stream.length == null) {
     throw new Error('Stream size missing');
@@ -100,107 +120,43 @@ exports.write = function(device, stream) {
     time: 500
   });
   progress.on('progress', function(state) {
+    state.type = 'write';
     return emitter.emit('progress', state);
   });
-  chunkSize = 65536 * 16;
   utils.eraseMBR(device).then(win32.prepare).then(function() {
-    return Promise.fromNode(function(callback) {
-      return stream.pipe(progress).pipe(StreamChunker(chunkSize, {
-        flush: true
-      })).pipe(fs.createWriteStream(device, {
-        flags: 'rs+'
-      })).on('close', callback).on('error', callback);
+    return Promise.props({
+      checksum: checksum.calculate(stream, {
+        bytes: stream.length
+      }),
+      write: new Promise(function(resolve, reject) {
+        return stream.pipe(progress).pipe(StreamChunker(CHUNK_SIZE, {
+          flush: true
+        })).pipe(fs.createWriteStream(device, {
+          flags: 'rs+'
+        })).on('close', resolve).on('error', reject);
+      })
     });
-  }).then(win32.prepare).then(function() {
-    return emitter.emit('done');
+  }).get('checksum').then(function(imageChecksum) {
+    if (!options.check) {
+      return win32.prepare().then(function() {
+        return emitter.emit('done', true);
+      });
+    }
+    return denymount(device, function(callback) {
+      return checksum.calculate(fs.createReadStream(device), {
+        bytes: stream.length,
+        progress: function(state) {
+          state.type = 'check';
+          return emitter.emit('progress', state);
+        }
+      }).tap(win32.prepare).then(function(deviceChecksum) {
+        return emitter.emit('done', imageChecksum === deviceChecksum);
+      }).asCallback(callback);
+    });
   })["catch"](function(error) {
     if (error.code === 'EINVAL') {
       error = new Error('Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io');
     }
-    return emitter.emit('error', error);
-  });
-  return emitter;
-};
-
-
-/**
- * @summary Write a readable stream to a device
- * @function
- * @public
- *
- * @description
- * This function can be used after `write()` to ensure
- * the image was successfully written to the device.
- *
- * This is checked by calculating and comparing checksums
- * of both the original image and the data written to a device.
- *
- * Notice that if you just used `write()`, you usually have
- * to create another readable stream from the image since
- * the one used previously has all its data consumed already,
- * so it will emit no `data` event, leading to false results.
- *
- * The returned EventEmitter instance emits the following events:
- *
- * - `progress`: A progress event that passes a state object of the form:
- *
- * 	{
- * 		percentage: 9.05,
- * 		transferred: 949624,
- * 		length: 10485760,
- * 		remaining: 9536136,
- * 		eta: 10,
- * 		runtime: 0,
- * 		delta: 295396,
- * 		speed: 949624
- * 	}
- *
- * - `error`: An error event.
- * - `done`: An event emitted with a boolean value determining the result of the check.
- *
- * @param {String} device - device
- * @param {ReadStream} stream - image readable stream
- * @returns {EventEmitter} - emitter
- *
- * @example
- * myStream = fs.createReadStream('my/image')
- * myStream.length = fs.statSync('my/image').size
- *
- * checker = imageWrite.check('/dev/disk2', myStream)
- *
- * checker.on 'error', (error) ->
- * 	console.error(error)
- *
- * checker.on 'done', (success) ->
- * 	if success
- * 		console.log('The write was successful')
- */
-
-exports.check = function(device, stream) {
-  var emitter;
-  emitter = new EventEmitter();
-  Promise["try"](function() {
-    var emitProgress;
-    if (stream.length == null) {
-      throw new Error('Stream size missing');
-    }
-    device = fs.createReadStream(utils.getRawDevice(device));
-    emitProgress = function(state) {
-      return emitter.emit('progress', state);
-    };
-    return Promise.props({
-      stream: checksum.calculate(stream, {
-        bytes: stream.length,
-        progress: emitProgress
-      }),
-      device: checksum.calculate(device, {
-        bytes: stream.length,
-        progress: emitProgress
-      })
-    });
-  }).then(function(checksums) {
-    return emitter.emit('done', checksums.stream === checksums.device);
-  })["catch"](function(error) {
     return emitter.emit('error', error);
   });
   return emitter;

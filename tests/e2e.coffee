@@ -7,88 +7,72 @@ imageWrite = require('../lib/write')
 
 RANDOM1 = path.join(__dirname, 'images', '1.random')
 RANDOM2 = path.join(__dirname, 'images', '2.random')
+RANDOM3 = path.join(__dirname, 'images', '3.random')
 
-wary.it 'write() should be able to burn data to a file',
+wary.it 'write: should be able to burn data to a file',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
-	Promise.fromNode (callback) ->
+	return new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
 		stream.length = fs.statSync(images.random1).size
 		writer = imageWrite.write(images.random2, stream)
-		writer.on('error', callback)
-		writer.on('done', callback)
-	.then ->
+		writer.on('error', reject)
+		writer.on('done', resolve)
+	.then (passed) ->
+		m.chai.expect(passed).to.be.true
+
 		Promise.props
 			random1: fs.readFileAsync(images.random1)
 			random2: fs.readFileAsync(images.random2)
 		.then (results) ->
 			m.chai.expect(results.random1).to.deep.equal(results.random2)
 
-wary.it 'write() should be rejected if the stream has no length',
+wary.it 'write: should be rejected if the stream has no length',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
-	promise = Promise.fromNode (callback) ->
+	promise = new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
 		writer = imageWrite.write(images.random2, stream)
-		writer.on('error', callback)
-		writer.on('done', callback)
+		writer.on('error', reject)
+		writer.on('done', resolve)
 
 	m.chai.expect(promise).to.be.rejectedWith('Stream size missing')
 
-wary.it 'check() should eventually be true on success',
+wary.it 'check: should eventually be true on success',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
 
-	Promise.fromNode (callback) ->
+	return new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
 		stream.length = fs.statSync(images.random1).size
-		writer = imageWrite.write(images.random2, stream)
-		writer.on('error', callback)
-		writer.on('done', callback)
-	.then ->
-		Promise.fromNode (callback) ->
-
-			# Create a readable stream from the original image
-			# again since the previous one was already consumed
-			stream = fs.createReadStream(images.random1)
-			stream.length = fs.statSync(images.random1).size
-
-			checker = imageWrite.check(images.random2, stream)
-			checker.on('error', callback)
-			checker.on 'done', (result) ->
-				return callback(null, result)
+		writer = imageWrite.write(images.random2, stream, check: true)
+		writer.on('error', reject)
+		writer.on('done', resolve)
 	.then (passed) ->
 		m.chai.expect(passed).to.be.true
 
-wary.it 'check() should eventually be false on failure',
+wary.it 'check: should eventually be false on failure',
 	random1: RANDOM1
 	random2: RANDOM2
+	random3: RANDOM3
 , (images) ->
-	Promise.fromNode (callback) ->
-		stream = fs.createReadStream(images.random1)
-		stream.length = fs.statSync(images.random1).size
+	stream = fs.createReadStream(images.random1)
+	stream.length = fs.statSync(images.random1).size
+	stream2 = fs.createReadStream(images.random3)
 
-		checker = imageWrite.check(images.random2, stream)
-		checker.on('error', callback)
-		checker.on 'done', (result) ->
-			return callback(null, result)
+	createReadStreamStub = m.sinon.stub(fs, 'createReadStream')
+	createReadStreamStub.returns(stream2)
+
+	return new Promise (resolve, reject) ->
+		writer = imageWrite.write(images.random2, stream, check: false)
+		writer.on('error', reject)
+		writer.on('done', resolve)
 	.then (passed) ->
-		m.chai.expect(passed).to.be.false
-
-wary.it 'check() should be rejected if the stream has no length',
-	random1: RANDOM1
-	random2: RANDOM2
-, (images) ->
-	promise = Promise.fromNode (callback) ->
-		stream = fs.createReadStream(images.random1)
-		checker = imageWrite.check(images.random2, stream)
-		checker.on('error', callback)
-		checker.on 'done', (result) ->
-			return callback(null, result)
-	m.chai.expect(promise).to.be.rejectedWith('Stream size missing')
+		m.chai.expect(passed).to.be.true
+		createReadStreamStub.restore()
 
 wary.run().catch (error) ->
 	console.error(error.message)
