@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] - 2016-03-29
+
+### Changed
+
+- Make sure a 100% state event is emitted from the check.
+
 ## [3.0.0] - 2016-03-29
 
 ### Added
@@ -71,6 +77,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[3.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.7...v2.1.0
 [2.0.7]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.6...v2.0.7
