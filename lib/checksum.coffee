@@ -75,6 +75,21 @@ exports.calculate = (stream, options = {}) ->
 			# application never exiting.
 			stream.close?()
 
+			# In some cases, a 100% progress state is never emitted.
+			# The last state we get is 98% or 99%.
+			# Since client code (like progress bars) might rely on
+			# a 100% state being emitted, we manually emit ourselves.
+			options.progress?({
+				percentage: 100
+				transferred: options.bytes
+				length: options.bytes
+				remaining: 0
+				eta: 0
+				runtime: 0
+				delta: 0
+				speed: 0
+			})
+
 			resolve(checksum.hex().toLowerCase())
 
 		slice = new SliceStream

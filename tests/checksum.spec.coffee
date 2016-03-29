@@ -51,6 +51,18 @@ describe 'Checksum:', ->
 				m.chai.expect(result).to.equal('5f29d461')
 			.nodeify(done)
 
+		it 'should emit a final 100% progress state', (done) ->
+			percentage = null
+
+			string = 'Lorem ipsum dolor sit amet'
+			checksum.calculate rindle.getStreamFromString(string),
+				bytes: string.length
+				progress: (state) ->
+					percentage = state.percentage
+			.then ->
+				m.chai.expect(percentage).to.equal(100)
+			.nodeify(done)
+
 		it 'should ignore overflow bytes and return a checksum for the whole stream', (done) ->
 			string = 'Lorem ipsum dolor sit amet'
 			checksum.calculate rindle.getStreamFromString(string),
