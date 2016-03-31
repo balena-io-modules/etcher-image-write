@@ -152,6 +152,8 @@ exports.write = function(device, stream, options) {
       }).tap(win32.prepare).then(function(deviceChecksum) {
         return emitter.emit('done', imageChecksum === deviceChecksum);
       }).asCallback(callback);
+    }, {
+      autoMountOnSuccess: true
     });
   })["catch"](function(error) {
     if (error.code === 'EINVAL') {

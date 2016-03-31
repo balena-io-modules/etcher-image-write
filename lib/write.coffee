@@ -143,6 +143,11 @@ exports.write = (device, stream, options = {}) ->
 			.then (deviceChecksum) ->
 				emitter.emit('done', imageChecksum is deviceChecksum)
 			.asCallback(callback)
+		,
+
+			# Automatically mount on success to mimic the behaviour
+			# of the rest of the operating systems
+			autoMountOnSuccess: true
 
 	.catch (error) ->
 
