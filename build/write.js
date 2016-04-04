@@ -123,26 +123,26 @@ exports.write = function(device, stream, options) {
     state.type = 'write';
     return emitter.emit('progress', state);
   });
-  utils.eraseMBR(device).then(win32.prepare).then(function() {
-    return Promise.props({
-      checksum: checksum.calculate(stream, {
-        bytes: stream.length
-      }),
-      write: new Promise(function(resolve, reject) {
-        return stream.pipe(progress).pipe(StreamChunker(CHUNK_SIZE, {
-          flush: true
-        })).pipe(fs.createWriteStream(device, {
-          flags: 'rs+'
-        })).on('close', resolve).on('error', reject);
-      })
-    });
-  }).get('checksum').then(function(imageChecksum) {
-    if (!options.check) {
-      return win32.prepare().then(function() {
-        return emitter.emit('done', true);
+  denymount(device, function(callback) {
+    return utils.eraseMBR(device).then(win32.prepare).then(function() {
+      return Promise.props({
+        checksum: checksum.calculate(stream, {
+          bytes: stream.length
+        }),
+        write: new Promise(function(resolve, reject) {
+          return stream.pipe(progress).pipe(StreamChunker(CHUNK_SIZE, {
+            flush: true
+          })).pipe(fs.createWriteStream(device, {
+            flags: 'rs+'
+          })).on('close', resolve).on('error', reject);
+        })
       });
-    }
-    return denymount(device, function(callback) {
+    }).get('checksum').then(function(imageChecksum) {
+      if (!options.check) {
+        return win32.prepare().then(function() {
+          return emitter.emit('done', true);
+        });
+      }
       return checksum.calculate(fs.createReadStream(device), {
         bytes: stream.length,
         progress: function(state) {
@@ -151,8 +151,8 @@ exports.write = function(device, stream, options) {
         }
       }).tap(win32.prepare).then(function(deviceChecksum) {
         return emitter.emit('done', imageChecksum === deviceChecksum);
-      }).asCallback(callback);
-    });
+      });
+    }).asCallback(callback);
   })["catch"](function(error) {
     if (error.code === 'EINVAL') {
       error = new Error('Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io');

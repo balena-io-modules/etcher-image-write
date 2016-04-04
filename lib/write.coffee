@@ -108,26 +108,26 @@ exports.write = (device, stream, options = {}) ->
 		state.type = 'write'
 		emitter.emit('progress', state)
 
-	utils.eraseMBR(device).then(win32.prepare).then ->
-		Promise.props
-			checksum: checksum.calculate(stream, bytes: stream.length)
-			write: new Promise (resolve, reject) ->
-				stream
-					.pipe(progress)
-					.pipe(StreamChunker(CHUNK_SIZE, flush: true))
-					.pipe(fs.createWriteStream(device, flags: 'rs+'))
-					.on('close', resolve)
-					.on('error', reject)
-	.get('checksum')
-	.then (imageChecksum) ->
-		if not options.check
-			return win32.prepare().then ->
-				emitter.emit('done', true)
+	# Prevent disks from auto-mounting, since some OSes, like
+	# Windows and OS X, "touch" files in FAT partitions,
+	# causing our checksum comparison to fail.
+	denymount device, (callback) ->
 
-		# Prevent disks from auto-mounting, since some OSes, like
-		# Windows and OS X, "touch" files in FAT partitions,
-		# causing our checksum comparison to fail.
-		return denymount device, (callback) ->
+		utils.eraseMBR(device).then(win32.prepare).then ->
+			Promise.props
+				checksum: checksum.calculate(stream, bytes: stream.length)
+				write: new Promise (resolve, reject) ->
+					stream
+						.pipe(progress)
+						.pipe(StreamChunker(CHUNK_SIZE, flush: true))
+						.pipe(fs.createWriteStream(device, flags: 'rs+'))
+						.on('close', resolve)
+						.on('error', reject)
+		.get('checksum')
+		.then (imageChecksum) ->
+			if not options.check
+				return win32.prepare().then ->
+					emitter.emit('done', true)
 
 			# Only calculate the checksum from the bytes that correspond
 			# to the original image size and not the whole drive since
@@ -142,7 +142,7 @@ exports.write = (device, stream, options = {}) ->
 			.tap(win32.prepare)
 			.then (deviceChecksum) ->
 				emitter.emit('done', imageChecksum is deviceChecksum)
-			.asCallback(callback)
+		.asCallback(callback)
 
 	.catch (error) ->
 
