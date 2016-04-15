@@ -18,7 +18,7 @@ var CRC32Stream, Promise, SliceStream, progressStream, _;
 
 CRC32Stream = require('crc32-stream');
 
-SliceStream = require('slice-stream');
+SliceStream = require('slice-stream2');
 
 Promise = require('bluebird');
 

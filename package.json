@@ -53,7 +53,7 @@
     "denymount": "^2.1.0",
     "lodash": "^3.10.0",
     "progress-stream": "^1.1.1",
-    "slice-stream": "^1.0.0",
+    "slice-stream2": "^1.0.1",
     "stream-chunker": "^1.1.5"
   }
 }
