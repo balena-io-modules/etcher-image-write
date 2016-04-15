@@ -1,6 +1,6 @@
 {
   "name": "resin-image-write",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Write a Resin.io image to a device",
   "main": "build/write.js",
   "homepage": "https://github.com/resin-io-modules/resin-image-write",

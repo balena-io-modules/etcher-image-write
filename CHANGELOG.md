@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.3] - 2016-04-15
+
+### Changed
+
+- Fix `stream.push() after EOF` with unaligned images.
+
 ## [3.0.2] - 2016-04-04
 
 ### Changed
@@ -83,6 +89,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[3.0.3]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.1.0...v3.0.0
