@@ -124,6 +124,9 @@ exports.write = (device, stream, options = {}) ->
 						.on('close', resolve)
 						.on('error', reject)
 		.get('checksum')
+		.catch (error) ->
+			error.type = 'write'
+			throw error
 		.then (imageChecksum) ->
 			if not options.check
 				return win32.prepare().then ->
@@ -140,6 +143,9 @@ exports.write = (device, stream, options = {}) ->
 					state.type = 'check'
 					emitter.emit('progress', state)
 			.tap(win32.prepare)
+			.catch (error) ->
+				error.type = 'check'
+				throw error
 			.then (deviceChecksum) ->
 				emitter.emit('done', imageChecksum is deviceChecksum)
 		.asCallback(callback)
@@ -148,7 +154,7 @@ exports.write = (device, stream, options = {}) ->
 
 		# TODO: Test this by crafting an unaligned image
 		if error.code is 'EINVAL'
-			error = new Error '''
+			error.message = '''
 				Yikes, your image appears to be invalid.
 				Please try again, or get in touch with support@resin.io
 			'''
