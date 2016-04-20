@@ -137,7 +137,10 @@ exports.write = function(device, stream, options) {
           })).on('close', resolve).on('error', reject);
         })
       });
-    }).get('checksum').then(function(imageChecksum) {
+    }).get('checksum')["catch"](function(error) {
+      error.type = 'write';
+      throw error;
+    }).then(function(imageChecksum) {
       if (!options.check) {
         return win32.prepare().then(function() {
           return emitter.emit('done', true);
@@ -149,13 +152,16 @@ exports.write = function(device, stream, options) {
           state.type = 'check';
           return emitter.emit('progress', state);
         }
-      }).tap(win32.prepare).then(function(deviceChecksum) {
+      }).tap(win32.prepare)["catch"](function(error) {
+        error.type = 'check';
+        throw error;
+      }).then(function(deviceChecksum) {
         return emitter.emit('done', imageChecksum === deviceChecksum);
       });
     }).asCallback(callback);
   })["catch"](function(error) {
     if (error.code === 'EINVAL') {
-      error = new Error('Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io');
+      error.message = 'Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io';
     }
     return emitter.emit('error', error);
   });
