@@ -18,7 +18,7 @@ limitations under the License.
 /**
  * @module imageWrite
  */
-var CHUNK_SIZE, EventEmitter, Promise, StreamChunker, checksum, denymount, fs, progressStream, utils, win32, _;
+var CHUNK_SIZE, EventEmitter, Promise, StreamChunker, StreamCounter, checksum, denymount, fs, progressStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -31,6 +31,8 @@ Promise = require('bluebird');
 progressStream = require('progress-stream');
 
 StreamChunker = require('stream-chunker');
+
+StreamCounter = require('passthrough-counter');
 
 denymount = Promise.promisify(require('denymount'));
 
@@ -127,27 +129,31 @@ exports.write = function(device, stream, options) {
     return utils.eraseMBR(device).then(win32.prepare).then(function() {
       return Promise.props({
         checksum: checksum.calculate(stream, {
-          bytes: stream.length
+          bytes: Infinity
         }),
-        write: new Promise(function(resolve, reject) {
-          return stream.pipe(progress).pipe(StreamChunker(CHUNK_SIZE, {
+        size: new Promise(function(resolve, reject) {
+          var counter;
+          counter = new StreamCounter();
+          return stream.pipe(progress).pipe(counter).pipe(StreamChunker(CHUNK_SIZE, {
             flush: true
           })).pipe(fs.createWriteStream(device, {
             flags: 'rs+'
-          })).on('close', resolve).on('error', reject);
+          })).on('close', function() {
+            return resolve(counter.length);
+          }).on('error', reject);
         })
       });
-    }).get('checksum')["catch"](function(error) {
+    })["catch"](function(error) {
       error.type = 'write';
       throw error;
-    }).then(function(imageChecksum) {
+    }).then(function(results) {
       if (!options.check) {
         return win32.prepare().then(function() {
           return emitter.emit('done', true);
         });
       }
       return checksum.calculate(fs.createReadStream(device), {
-        bytes: stream.length,
+        bytes: results.size,
         progress: function(state) {
           state.type = 'check';
           return emitter.emit('progress', state);
@@ -156,7 +162,7 @@ exports.write = function(device, stream, options) {
         error.type = 'check';
         throw error;
       }).then(function(deviceChecksum) {
-        return emitter.emit('done', imageChecksum === deviceChecksum);
+        return emitter.emit('done', results.checksum === deviceChecksum);
       });
     }).asCallback(callback);
   })["catch"](function(error) {

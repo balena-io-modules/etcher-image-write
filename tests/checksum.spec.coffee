@@ -71,6 +71,14 @@ describe 'Checksum:', ->
 				m.chai.expect(result).to.equal('5f29d461')
 			.nodeify(done)
 
+		it 'should return a checksum for the whole stream if bytes equals Infinity', (done) ->
+			string = 'Lorem ipsum dolor sit amet'
+			checksum.calculate rindle.getStreamFromString(string),
+				bytes: Infinity
+			.then (result) ->
+				m.chai.expect(result).to.equal('5f29d461')
+			.nodeify(done)
+
 		it 'should calculate the checksum from a part of a stream', (done) ->
 			string = 'Lorem ipsum dolor sit amet'
 			checksum.calculate rindle.getStreamFromString(string),
