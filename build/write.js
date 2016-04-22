@@ -18,7 +18,7 @@ limitations under the License.
 /**
  * @module imageWrite
  */
-var CHUNK_SIZE, EventEmitter, Promise, StreamChunker, StreamCounter, checksum, denymount, fs, progressStream, utils, win32, _;
+var CHUNK_SIZE, CRC32Stream, DevNullStream, EventEmitter, Promise, StreamChunker, denymount, fs, progressStream, sliceStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -32,15 +32,17 @@ progressStream = require('progress-stream');
 
 StreamChunker = require('stream-chunker');
 
-StreamCounter = require('passthrough-counter');
+sliceStream = require('slice-stream2');
+
+CRC32Stream = require('crc32-stream');
+
+DevNullStream = require('dev-null-stream');
 
 denymount = Promise.promisify(require('denymount'));
 
 utils = require('./utils');
 
 win32 = require('./win32');
-
-checksum = require('./checksum');
 
 CHUNK_SIZE = 65536 * 16;
 
@@ -119,47 +121,53 @@ exports.write = function(device, stream, options) {
   device = utils.getRawDevice(device);
   denymount(device, function(callback) {
     return utils.eraseMBR(device).then(win32.prepare).then(function() {
-      return Promise.props({
-        checksum: checksum.calculate(stream, {
-          bytes: Infinity
-        }),
-        size: new Promise(function(resolve, reject) {
-          var counter;
-          counter = new StreamCounter();
-          return stream.pipe(progressStream({
-            length: _.parseInt(stream.length),
-            time: 500
-          })).on('progress', function(state) {
-            state.type = 'write';
-            return emitter.emit('progress', state);
-          }).pipe(counter).pipe(StreamChunker(CHUNK_SIZE, {
-            flush: true
-          })).pipe(fs.createWriteStream(device, {
-            flags: 'rs+'
-          })).on('close', function() {
-            return resolve(counter.length);
-          }).on('error', reject);
-        })
+      return new Promise(function(resolve, reject) {
+        var checksumStream;
+        checksumStream = new CRC32Stream();
+        return stream.pipe(checksumStream).pipe(progressStream({
+          length: _.parseInt(stream.length),
+          time: 500
+        })).on('progress', function(state) {
+          state.type = 'write';
+          return emitter.emit('progress', state);
+        }).pipe(StreamChunker(CHUNK_SIZE, {
+          flush: true
+        })).pipe(fs.createWriteStream(device, {
+          flags: 'rs+'
+        })).on('error', function(error) {
+          error.type = 'write';
+          return reject(error);
+        }).on('close', function() {
+          return resolve({
+            checksum: checksumStream.hex().toLowerCase(),
+            size: checksumStream.size()
+          });
+        });
       });
-    })["catch"](function(error) {
-      error.type = 'write';
-      throw error;
     }).then(function(results) {
       if (!options.check) {
         return win32.prepare().then(function() {
           return emitter.emit('done', true);
         });
       }
-      return checksum.calculate(fs.createReadStream(device), {
-        bytes: results.size,
-        progress: function(state) {
+      return new Promise(function(resolve, reject) {
+        var checksumStream;
+        checksumStream = new CRC32Stream();
+        return fs.createReadStream(device).pipe(sliceStream({
+          bytes: results.size
+        })).pipe(progressStream({
+          length: _.parseInt(results.size),
+          time: 500
+        })).on('progress', function(state) {
           state.type = 'check';
           return emitter.emit('progress', state);
-        }
-      }).tap(win32.prepare)["catch"](function(error) {
-        error.type = 'check';
-        throw error;
-      }).then(function(deviceChecksum) {
+        }).pipe(checksumStream).pipe(new DevNullStream()).on('error', function(error) {
+          error.type = 'check';
+          return reject(error);
+        }).on('finish', function() {
+          return resolve(checksumStream.hex().toLowerCase());
+        });
+      }).tap(win32.prepare).then(function(deviceChecksum) {
         return emitter.emit('done', results.checksum === deviceChecksum);
       });
     }).asCallback(callback);

@@ -24,11 +24,12 @@ _ = require('lodash')
 Promise = require('bluebird')
 progressStream = require('progress-stream')
 StreamChunker = require('stream-chunker')
-StreamCounter = require('passthrough-counter')
+sliceStream = require('slice-stream2')
+CRC32Stream = require('crc32-stream')
+DevNullStream = require('dev-null-stream')
 denymount = Promise.promisify(require('denymount'))
 utils = require('./utils')
 win32 = require('./win32')
-checksum = require('./checksum')
 
 CHUNK_SIZE = 65536 * 16 # 64K * 16 = 1024K = 1M
 
@@ -107,46 +108,58 @@ exports.write = (device, stream, options = {}) ->
 	denymount device, (callback) ->
 
 		utils.eraseMBR(device).then(win32.prepare).then ->
-			Promise.props
-				checksum: checksum.calculate(stream, bytes: Infinity)
-				size: new Promise (resolve, reject) ->
-					counter = new StreamCounter()
+			new Promise (resolve, reject) ->
+				checksumStream = new CRC32Stream()
 
-					stream
-						.pipe progressStream
-							length: _.parseInt(stream.length)
-							time: 500
-						.on 'progress', (state) ->
-							state.type = 'write'
-							emitter.emit('progress', state)
-						.pipe(counter)
-						.pipe(StreamChunker(CHUNK_SIZE, flush: true))
-						.pipe(fs.createWriteStream(device, flags: 'rs+'))
-						.on 'close', ->
-							return resolve(counter.length)
-						.on('error', reject)
-		.catch (error) ->
-			error.type = 'write'
-			throw error
+				stream
+					.pipe(checksumStream)
+					.pipe progressStream
+						length: _.parseInt(stream.length)
+						time: 500
+					.on 'progress', (state) ->
+						state.type = 'write'
+						emitter.emit('progress', state)
+					.pipe(StreamChunker(CHUNK_SIZE, flush: true))
+					.pipe(fs.createWriteStream(device, flags: 'rs+'))
+					.on 'error', (error) ->
+						error.type = 'write'
+						return reject(error)
+					.on 'close', ->
+						return resolve
+							checksum: checksumStream.hex().toLowerCase()
+							size: checksumStream.size()
+
 		.then (results) ->
 			if not options.check
 				return win32.prepare().then ->
 					emitter.emit('done', true)
 
-			# Only calculate the checksum from the bytes that correspond
-			# to the original image size and not the whole drive since
-			# the drive might contain empty space that changes the
-			# resulting checksum.
-			# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
-			return checksum.calculate fs.createReadStream(device),
-				bytes: results.size
-				progress: (state) ->
-					state.type = 'check'
-					emitter.emit('progress', state)
+			new Promise (resolve, reject) ->
+				checksumStream = new CRC32Stream()
+				fs.createReadStream(device)
+
+					# Only calculate the checksum from the bytes that correspond
+					# to the original image size and not the whole drive since
+					# the drive might contain empty space that changes the
+					# resulting checksum.
+					# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
+					.pipe(sliceStream(bytes: results.size))
+
+					.pipe progressStream
+						length: _.parseInt(results.size)
+						time: 500
+					.on 'progress', (state) ->
+						state.type = 'check'
+						emitter.emit('progress', state)
+					.pipe(checksumStream)
+					.pipe(new DevNullStream())
+					.on 'error', (error) ->
+						error.type = 'check'
+						return reject(error)
+					.on 'finish', ->
+						return resolve(checksumStream.hex().toLowerCase())
+
 			.tap(win32.prepare)
-			.catch (error) ->
-				error.type = 'check'
-				throw error
 			.then (deviceChecksum) ->
 				emitter.emit('done', results.checksum is deviceChecksum)
 		.asCallback(callback)

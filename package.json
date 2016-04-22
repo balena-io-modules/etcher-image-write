@@ -51,10 +51,10 @@
     "bluebird": "^2.9.30",
     "crc32-stream": "^0.4.0",
     "denymount": "^2.1.0",
+    "dev-null-stream": "0.0.1",
     "lodash": "^3.10.0",
-    "passthrough-counter": "^1.0.0",
     "progress-stream": "^1.1.1",
-    "slice-stream2": "^1.0.1",
+    "slice-stream2": "^2.0.0",
     "stream-chunker": "^1.1.5"
   }
 }
