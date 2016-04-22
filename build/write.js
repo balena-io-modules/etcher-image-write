@@ -108,7 +108,7 @@ CHUNK_SIZE = 65536 * 16;
  */
 
 exports.write = function(device, stream, options) {
-  var emitter, progress;
+  var emitter;
   if (options == null) {
     options = {};
   }
@@ -117,14 +117,6 @@ exports.write = function(device, stream, options) {
     throw new Error('Stream size missing');
   }
   device = utils.getRawDevice(device);
-  progress = progressStream({
-    length: _.parseInt(stream.length),
-    time: 500
-  });
-  progress.on('progress', function(state) {
-    state.type = 'write';
-    return emitter.emit('progress', state);
-  });
   denymount(device, function(callback) {
     return utils.eraseMBR(device).then(win32.prepare).then(function() {
       return Promise.props({
@@ -134,7 +126,13 @@ exports.write = function(device, stream, options) {
         size: new Promise(function(resolve, reject) {
           var counter;
           counter = new StreamCounter();
-          return stream.pipe(progress).pipe(counter).pipe(StreamChunker(CHUNK_SIZE, {
+          return stream.pipe(progressStream({
+            length: _.parseInt(stream.length),
+            time: 500
+          })).on('progress', function(state) {
+            state.type = 'write';
+            return emitter.emit('progress', state);
+          }).pipe(counter).pipe(StreamChunker(CHUNK_SIZE, {
             flush: true
           })).pipe(fs.createWriteStream(device, {
             flags: 'rs+'

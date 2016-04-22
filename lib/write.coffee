@@ -101,14 +101,6 @@ exports.write = (device, stream, options = {}) ->
 
 	device = utils.getRawDevice(device)
 
-	progress = progressStream
-		length: _.parseInt(stream.length)
-		time: 500
-
-	progress.on 'progress', (state) ->
-		state.type = 'write'
-		emitter.emit('progress', state)
-
 	# Prevent disks from auto-mounting, since some OSes, like
 	# Windows and OS X, "touch" files in FAT partitions,
 	# causing our checksum comparison to fail.
@@ -121,7 +113,12 @@ exports.write = (device, stream, options = {}) ->
 					counter = new StreamCounter()
 
 					stream
-						.pipe(progress)
+						.pipe progressStream
+							length: _.parseInt(stream.length)
+							time: 500
+						.on 'progress', (state) ->
+							state.type = 'write'
+							emitter.emit('progress', state)
 						.pipe(counter)
 						.pipe(StreamChunker(CHUNK_SIZE, flush: true))
 						.pipe(fs.createWriteStream(device, flags: 'rs+'))
