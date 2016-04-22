@@ -24,6 +24,7 @@ _ = require('lodash')
 Promise = require('bluebird')
 progressStream = require('progress-stream')
 StreamChunker = require('stream-chunker')
+StreamCounter = require('passthrough-counter')
 denymount = Promise.promisify(require('denymount'))
 utils = require('./utils')
 win32 = require('./win32')
@@ -115,19 +116,22 @@ exports.write = (device, stream, options = {}) ->
 
 		utils.eraseMBR(device).then(win32.prepare).then ->
 			Promise.props
-				checksum: checksum.calculate(stream, bytes: stream.length)
-				write: new Promise (resolve, reject) ->
+				checksum: checksum.calculate(stream, bytes: Infinity)
+				size: new Promise (resolve, reject) ->
+					counter = new StreamCounter()
+
 					stream
 						.pipe(progress)
+						.pipe(counter)
 						.pipe(StreamChunker(CHUNK_SIZE, flush: true))
 						.pipe(fs.createWriteStream(device, flags: 'rs+'))
-						.on('close', resolve)
+						.on 'close', ->
+							return resolve(counter.length)
 						.on('error', reject)
-		.get('checksum')
 		.catch (error) ->
 			error.type = 'write'
 			throw error
-		.then (imageChecksum) ->
+		.then (results) ->
 			if not options.check
 				return win32.prepare().then ->
 					emitter.emit('done', true)
@@ -138,7 +142,7 @@ exports.write = (device, stream, options = {}) ->
 			# resulting checksum.
 			# See https://help.ubuntu.com/community/HowToMD5SUM#Check_the_CD
 			return checksum.calculate fs.createReadStream(device),
-				bytes: stream.length
+				bytes: results.size
 				progress: (state) ->
 					state.type = 'check'
 					emitter.emit('progress', state)
@@ -147,7 +151,7 @@ exports.write = (device, stream, options = {}) ->
 				error.type = 'check'
 				throw error
 			.then (deviceChecksum) ->
-				emitter.emit('done', imageChecksum is deviceChecksum)
+				emitter.emit('done', results.checksum is deviceChecksum)
 		.asCallback(callback)
 
 	.catch (error) ->
