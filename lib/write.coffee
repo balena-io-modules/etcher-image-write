@@ -152,14 +152,6 @@ exports.write = (device, stream, options = {}) ->
 		.asCallback(callback)
 
 	.catch (error) ->
-
-		# TODO: Test this by crafting an unaligned image
-		if error.code is 'EINVAL'
-			error.message = '''
-				Yikes, your image appears to be invalid.
-				Please try again, or get in touch with support@resin.io
-			'''
-
 		emitter.emit('error', error)
 
 	return emitter

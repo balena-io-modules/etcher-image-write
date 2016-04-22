@@ -164,9 +164,6 @@ exports.write = function(device, stream, options) {
       });
     }).asCallback(callback);
   })["catch"](function(error) {
-    if (error.code === 'EINVAL') {
-      error.message = 'Yikes, your image appears to be invalid.\nPlease try again, or get in touch with support@resin.io';
-    }
     return emitter.emit('error', error);
   });
   return emitter;
