@@ -18,7 +18,7 @@ limitations under the License.
 /**
  * @module imageWrite
  */
-var CHUNK_SIZE, CRC32Stream, DevNullStream, EventEmitter, Promise, StreamChunker, denymount, fs, progressStream, sliceStream, utils, win32, _;
+var CHUNK_SIZE, CRC32Stream, DevNullStream, EventEmitter, PassThroughStream, Promise, StreamChunker, denymount, fs, progressStream, sliceStream, utils, win32, _;
 
 EventEmitter = require('events').EventEmitter;
 
@@ -35,6 +35,8 @@ StreamChunker = require('stream-chunker');
 sliceStream = require('slice-stream2');
 
 CRC32Stream = require('crc32-stream');
+
+PassThroughStream = require('stream').PassThrough;
 
 DevNullStream = require('dev-null-stream');
 
@@ -81,10 +83,22 @@ CHUNK_SIZE = 65536 * 16;
  * comparing checksums from both the original image and the data written
  * to the device.
  *
+ * The `transform` option is used to handle cases like decompression of
+ * an image on the fly. The stream is piped through this transform stream
+ * *after* the progress stream and *before* any writing and alignment.
+ *
+ * This allows the progress to be accurately displayed even when the
+ * client doesn't know the final uncompressed size.
+ *
+ * For example, to handle writing a compressed file, you pass the
+ * compressed stream to `.write()`, pass the *compressed stream size*,
+ * and a transform stream to decompress the file.
+ *
  * @param {String} device - device
  * @param {ReadStream} stream - readable stream
  * @param {Object} options - options
  * @param {Number} options.size - input stream size
+ * @param {TransformStream} [options.transform] - transform stream
  * @param {Boolean} [options.check=false] - enable write check
  * @returns {EventEmitter} emitter
  *
@@ -123,15 +137,15 @@ exports.write = function(device, stream, options) {
       return new Promise(function(resolve, reject) {
         var checksumStream;
         checksumStream = new CRC32Stream();
-        return stream.pipe(checksumStream).pipe(progressStream({
+        return stream.pipe(progressStream({
           length: _.parseInt(options.size),
           time: 500
         })).on('progress', function(state) {
           state.type = 'write';
           return emitter.emit('progress', state);
-        }).pipe(StreamChunker(CHUNK_SIZE, {
+        }).pipe(options.transform || new PassThroughStream()).pipe(StreamChunker(CHUNK_SIZE, {
           flush: true
-        })).pipe(fs.createWriteStream(device, {
+        })).pipe(checksumStream).pipe(fs.createWriteStream(device, {
           flags: 'rs+'
         })).on('error', function(error) {
           error.type = 'write';
