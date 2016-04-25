@@ -30,7 +30,8 @@ Documentation
 -------------
 
 <a name="module_imageWrite.write"></a>
-### imageWrite.write(device, stream, [options]) ⇒ <code>EventEmitter</code>
+
+### imageWrite.write(device, stream, options) ⇒ <code>EventEmitter</code>
 **NOTICE:** You might need to run this function as sudo/administrator to
 avoid permission issues.
 
@@ -53,9 +54,6 @@ The returned EventEmitter instance emits the following events:
 - `error`: An error event.
 - `done`: An event emitted with a boolean success value.
 
-If you're passing a readable stream from a custom location, you should
-configure the length by adding a `.length` number property to the stream.
-
 Enabling the `check` option is useful to ensure the image was
 successfully written to the device. This is checked by calculating and
 comparing checksums from both the original image and the data written
@@ -70,15 +68,17 @@ to the device.
 | --- | --- | --- | --- |
 | device | <code>String</code> |  | device |
 | stream | <code>ReadStream</code> |  | readable stream |
-| [options] | <code>Object</code> | <code>{}</code> | options |
+| options | <code>Object</code> |  | options |
+| options.size | <code>Number</code> |  | input stream size |
 | [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
 
 **Example**  
 ```js
 myStream = fs.createReadStream('my/image')
-myStream.length = fs.statSync('my/image').size
 
-emitter = imageWrite.write('/dev/disk2', myStream, check: true)
+emitter = imageWrite.write '/dev/disk2', myStream,
+	check: true
+	size: fs.statSync('my/image').size
 
 emitter.on 'progress', (state) ->
 	console.log(state)
