@@ -62,9 +62,6 @@ CHUNK_SIZE = 65536 * 16 # 64K * 16 = 1024K = 1M
 # - `error`: An error event.
 # - `done`: An event emitted with a boolean success value.
 #
-# If you're passing a readable stream from a custom location, you should
-# configure the length by adding a `.length` number property to the stream.
-#
 # Enabling the `check` option is useful to ensure the image was
 # successfully written to the device. This is checked by calculating and
 # comparing checksums from both the original image and the data written
@@ -72,15 +69,17 @@ CHUNK_SIZE = 65536 * 16 # 64K * 16 = 1024K = 1M
 #
 # @param {String} device - device
 # @param {ReadStream} stream - readable stream
-# @param {Object} [options={}] - options
+# @param {Object} options - options
+# @param {Number} options.size - input stream size
 # @param {Boolean} [options.check=false] - enable write check
 # @returns {EventEmitter} emitter
 #
 # @example
 # myStream = fs.createReadStream('my/image')
-# myStream.length = fs.statSync('my/image').size
 #
-# emitter = imageWrite.write('/dev/disk2', myStream, check: true)
+# emitter = imageWrite.write '/dev/disk2', myStream,
+# 	check: true
+# 	size: fs.statSync('my/image').size
 #
 # emitter.on 'progress', (state) ->
 # 	console.log(state)
@@ -97,8 +96,8 @@ CHUNK_SIZE = 65536 * 16 # 64K * 16 = 1024K = 1M
 exports.write = (device, stream, options = {}) ->
 	emitter = new EventEmitter()
 
-	if not stream.length?
-		throw new Error('Stream size missing')
+	if not options.size?
+		throw new Error('Missing size option')
 
 	device = utils.getRawDevice(device)
 
@@ -114,7 +113,7 @@ exports.write = (device, stream, options = {}) ->
 				stream
 					.pipe(checksumStream)
 					.pipe progressStream
-						length: _.parseInt(stream.length)
+						length: _.parseInt(options.size)
 						time: 500
 					.on 'progress', (state) ->
 						state.type = 'write'

@@ -15,8 +15,8 @@ wary.it 'write: should be able to burn data to a file',
 , (images) ->
 	return new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
-		stream.length = fs.statSync(images.random1).size
-		writer = imageWrite.write(images.random2, stream)
+		writer = imageWrite.write images.random2, stream,
+			size: fs.statSync(images.random1).size
 		writer.on('error', reject)
 		writer.on('done', resolve)
 	.then (passed) ->
@@ -28,17 +28,17 @@ wary.it 'write: should be able to burn data to a file',
 		.then (results) ->
 			m.chai.expect(results.random1).to.deep.equal(results.random2)
 
-wary.it 'write: should be rejected if the stream has no length',
+wary.it 'write: should be rejected if the size is missing',
 	random1: RANDOM1
 	random2: RANDOM2
 , (images) ->
 	promise = new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
-		writer = imageWrite.write(images.random2, stream)
+		writer = imageWrite.write(images.random2, stream, size: null)
 		writer.on('error', reject)
 		writer.on('done', resolve)
 
-	m.chai.expect(promise).to.be.rejectedWith('Stream size missing')
+	m.chai.expect(promise).to.be.rejectedWith('Missing size option')
 
 wary.it 'check: should eventually be true on success',
 	random1: RANDOM1
@@ -47,8 +47,9 @@ wary.it 'check: should eventually be true on success',
 
 	return new Promise (resolve, reject) ->
 		stream = fs.createReadStream(images.random1)
-		stream.length = fs.statSync(images.random1).size
-		writer = imageWrite.write(images.random2, stream, check: true)
+		writer = imageWrite.write images.random2, stream,
+			check: true
+			size: fs.statSync(images.random1).size
 		writer.on('error', reject)
 		writer.on('done', resolve)
 	.then (passed) ->
@@ -60,14 +61,15 @@ wary.it 'check: should eventually be false on failure',
 	random3: RANDOM3
 , (images) ->
 	stream = fs.createReadStream(images.random1)
-	stream.length = fs.statSync(images.random1).size
 	stream2 = fs.createReadStream(images.random3)
 
 	createReadStreamStub = m.sinon.stub(fs, 'createReadStream')
 	createReadStreamStub.returns(stream2)
 
 	return new Promise (resolve, reject) ->
-		writer = imageWrite.write(images.random2, stream, check: false)
+		writer = imageWrite.write images.random2, stream,
+			check: false
+			size: fs.statSync(images.random1).size
 		writer.on('error', reject)
 		writer.on('done', resolve)
 	.then (passed) ->
