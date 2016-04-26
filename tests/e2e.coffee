@@ -1,5 +1,6 @@
 m = require('mochainon')
 path = require('path')
+zlib = require('zlib')
 wary = require('wary')
 Promise = require('bluebird')
 fs = Promise.promisifyAll(require('fs'))
@@ -8,6 +9,7 @@ imageWrite = require('../lib/write')
 RANDOM1 = path.join(__dirname, 'images', '1.random')
 RANDOM2 = path.join(__dirname, 'images', '2.random')
 RANDOM3 = path.join(__dirname, 'images', '3.random')
+RANDOM1_GZ = path.join(__dirname, 'images', '1.random.gz')
 
 wary.it 'write: should be able to burn data to a file',
 	random1: RANDOM1
@@ -75,6 +77,28 @@ wary.it 'check: should eventually be false on failure',
 	.then (passed) ->
 		m.chai.expect(passed).to.be.true
 		createReadStreamStub.restore()
+
+wary.it 'transform: should be able to decompress an gz image',
+	input: RANDOM1_GZ
+	real: RANDOM1
+	output: RANDOM2
+, (images) ->
+	return new Promise (resolve, reject) ->
+		stream = fs.createReadStream(images.input)
+		writer = imageWrite.write images.output, stream,
+			check: true
+			size: fs.statSync(images.input).size
+			transform: zlib.createGunzip()
+		writer.on('error', reject)
+		writer.on('done', resolve)
+	.then (passed) ->
+		m.chai.expect(passed).to.be.true
+
+		Promise.props
+			real: fs.readFileAsync(images.real)
+			output: fs.readFileAsync(images.output)
+		.then (results) ->
+			m.chai.expect(results.real).to.deep.equal(results.output)
 
 wary.run().catch (error) ->
 	console.error(error.message)

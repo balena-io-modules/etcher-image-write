@@ -59,6 +59,17 @@ successfully written to the device. This is checked by calculating and
 comparing checksums from both the original image and the data written
 to the device.
 
+The `transform` option is used to handle cases like decompression of
+an image on the fly. The stream is piped through this transform stream
+*after* the progress stream and *before* any writing and alignment.
+
+This allows the progress to be accurately displayed even when the
+client doesn't know the final uncompressed size.
+
+For example, to handle writing a compressed file, you pass the
+compressed stream to `.write()`, pass the *compressed stream size*,
+and a transform stream to decompress the file.
+
 **Kind**: static method of <code>[imageWrite](#module_imageWrite)</code>  
 **Summary**: Write a readable stream to a device  
 **Returns**: <code>EventEmitter</code> - emitter  
@@ -70,6 +81,7 @@ to the device.
 | stream | <code>ReadStream</code> |  | readable stream |
 | options | <code>Object</code> |  | options |
 | options.size | <code>Number</code> |  | input stream size |
+| [options.transform] | <code>TransformStream</code> |  | transform stream |
 | [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
 
 **Example**  
