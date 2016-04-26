@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.0] - 2016-04-26
+
+### Added
+
+- Add a `size` required option.
+- Add a `transform` option to pass a custom stream transform.
+
+### Changed
+
+- Remove the need for a custom `.length` property on streams.
+- Heavy refactoring of the module.
+
+### Removed
+
+- Remove Resin.io mentions in error messages.
+
 ## [3.0.4] - 2016-04-20
 
 ### Changed
@@ -95,6 +111,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[4.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.4...v4.0.0
 [3.0.4]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.1...v3.0.2
