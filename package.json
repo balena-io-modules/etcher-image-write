@@ -1,8 +1,8 @@
 {
   "name": "resin-image-write",
   "version": "4.0.0",
-  "description": "Write a Resin.io image to a device",
-  "main": "build/write.js",
+  "description": "The cross-platform way to stream an OS image to a device",
+  "main": "lib/write.js",
   "homepage": "https://github.com/resin-io-modules/resin-image-write",
   "repository": {
     "type": "git",
@@ -20,20 +20,16 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "gulp test && coffee tests/e2e.coffee",
-    "prepublish": "gulp build",
-    "readme": "jsdoc2md --template doc/README.hbs build/write.js > README.md"
+    "test": "npm run lint && mocha --recursive tests/*.spec.js -R spec && node tests/e2e.js",
+    "lint": "jshint --config .jshintrc --reporter=node_modules/jshint-stylish lib tests bin example.js",
+    "readme": "jsdoc2md --template doc/README.hbs lib/write.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "coffee-script": "~1.8.0",
-    "gulp": "~3.8.10",
-    "gulp-coffee": "~2.2.0",
-    "gulp-coffeelint": "~0.4.0",
-    "gulp-mocha": "~2.0.0",
-    "gulp-util": "~3.0.1",
     "jsdoc-to-markdown": "^1.1.1",
+    "jshint": "^2.9.2",
+    "jshint-stylish": "^2.1.0",
     "mocha": "~2.0.1",
     "mochainon": "^1.0.0",
     "nock": "^2.6.0",
