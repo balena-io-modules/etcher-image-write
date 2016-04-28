@@ -123,20 +123,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
-[4.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v4.0.1...v4.0.2
-[4.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v4.0.0...v4.0.1
-[4.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.4...v4.0.0
-[3.0.4]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.3...v3.0.4
-[3.0.3]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.2...v3.0.3
-[3.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.1...v3.0.2
-[3.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.0...v3.0.1
-[3.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.1.0...v3.0.0
-[2.1.0]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.7...v2.1.0
-[2.0.7]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.6...v2.0.7
-[2.0.6]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.5...v2.0.6
-[2.0.5]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.4...v2.0.5
-[2.0.4]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.3...v2.0.4
-[2.0.3]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.2...v2.0.3
-[2.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.1...v2.0.2
-[2.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v1.0.0...v2.0.0
+[4.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v3.0.4...v4.0.0
+[3.0.4]: https://github.com/resin-io-modules/etcher-image-write/compare/v3.0.3...v3.0.4
+[3.0.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v3.0.2...v3.0.3
+[3.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.1.0...v3.0.0
+[2.1.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.7...v2.1.0
+[2.0.7]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.6...v2.0.7
+[2.0.6]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.5...v2.0.6
+[2.0.5]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.4...v2.0.5
+[2.0.4]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.3...v2.0.4
+[2.0.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v1.0.0...v2.0.0

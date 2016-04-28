@@ -1,19 +1,22 @@
 {
-  "name": "resin-image-write",
+  "name": "etcher-image-write",
   "version": "4.0.2",
   "description": "The cross-platform way to stream an OS image to a device",
   "main": "lib/write.js",
-  "homepage": "https://github.com/resin-io-modules/resin-image-write",
+  "homepage": "https://github.com/resin-io-modules/etcher-image-write",
   "repository": {
     "type": "git",
-    "url": "git://github.com/resin-io-modules/resin-image-write.git"
+    "url": "git://github.com/resin-io-modules/etcher-image-write.git"
   },
   "bin": {
-    "resin-image-write": "./bin/cli.js"
+    "etcher-image-write": "./bin/cli.js"
   },
   "keywords": [
-    "resin",
+    "etcher",
     "image",
+    "os",
+    "flash",
+    "burn",
     "write"
   ],
   "directories": {
@@ -33,8 +36,6 @@
     "mocha": "~2.0.1",
     "mochainon": "^1.0.0",
     "nock": "^2.6.0",
-    "resin-request": "^2.2.5",
-    "resin-settings-client": "^3.0.0",
     "rindle": "^1.3.0",
     "string-to-stream": "^1.0.1",
     "tmp": "0.0.28",
