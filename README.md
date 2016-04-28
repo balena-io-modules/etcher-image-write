@@ -30,17 +30,19 @@ The returned EventEmitter instance emits the following events:
 
 - `progress`: A progress event that passes a state object of the form:
 
-   {
-     type: 'write' // possible values: 'write', 'check'.
-     percentage: 9.05,
-     transferred: 949624,
-     length: 10485760,
-     remaining: 9536136,
-     eta: 10,
-     runtime: 0,
-     delta: 295396,
-     speed: 949624
-   }
+```js
+{
+  type: 'write' // possible values: 'write', 'check'.
+  percentage: 9.05,
+  transferred: 949624,
+  length: 10485760,
+  remaining: 9536136,
+  eta: 10,
+  runtime: 0,
+  delta: 295396,
+  speed: 949624
+}
+```
 
 - `error`: An error event.
 - `done`: An event emitted with a boolean success value.
