@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.2] - 2016-04-28
+
+### Changed
+
+- Upgrade `bluebird` to `v3.3.5` to avoid incompatibilities in certain environments.
+
 ## [4.0.1] - 2016-04-27
 
 ### Changed
@@ -117,6 +123,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[4.0.2]: https://github.com/resin-io-modules/resin-image-write/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/resin-io-modules/resin-image-write/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.4...v4.0.0
 [3.0.4]: https://github.com/resin-io-modules/resin-image-write/compare/v3.0.3...v3.0.4
