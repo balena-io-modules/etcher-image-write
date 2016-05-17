@@ -41,8 +41,9 @@ wary.it('write: should be able to burn data to a file', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(passed) {
-    m.chai.expect(passed).to.be.true;
+  }).then(function(results) {
+    m.chai.expect(results.passedValidation).to.be.true;
+    m.chai.expect(results.sourceChecksum).to.equal('2f73fef');
 
     return Promise.props({
       random1: fs.readFileAsync(images.random1),
@@ -83,8 +84,8 @@ wary.it('check: should eventually be true on success', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(passed) {
-    m.chai.expect(passed).to.be.true;
+  }).then(function(results) {
+    m.chai.expect(results.passedValidation).to.be.true;
   });
 });
 
@@ -107,8 +108,8 @@ wary.it('check: should eventually be false on failure', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(passed) {
-    m.chai.expect(passed).to.be.true;
+  }).then(function(results) {
+    m.chai.expect(results.passedValidation).to.be.true;
     createReadStreamStub.restore();
   });
 });
@@ -128,8 +129,8 @@ wary.it('transform: should be able to decompress an gz image', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(passed) {
-    m.chai.expect(passed).to.be.true;
+  }).then(function(results) {
+    m.chai.expect(results.passedValidation).to.be.true;
 
     return Promise.props({
       real: fs.readFileAsync(images.real),
