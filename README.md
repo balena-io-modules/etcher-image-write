@@ -94,8 +94,8 @@ emitter.on('error', function(error) {
   console.error(error);
 });
 
-emitter.on('done', function(success) {
-  if (success) {
+emitter.on('done', function(results) {
+  if (results.passedValidation) {
     console.log('Success!');
   } else {
     console.log('Failed!');
