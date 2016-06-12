@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [5.0.1] - 2016-06-12
+
+### Changed
+
+- Fix Windows `EPERM` issue on certain drives.
+
 ## [5.0.0] - 2016-05-17
 
 ### Added
@@ -129,6 +135,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[5.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v4.0.2...v5.0.0
 [4.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v4.0.0...v4.0.1
