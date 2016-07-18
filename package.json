@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "bluebird": "^3.3.5",
+    "bluebird-retry": "^0.7.0",
     "crc32-stream": "^0.4.0",
     "denymount": "^2.1.0",
     "dev-null-stream": "0.0.1",
