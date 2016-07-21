@@ -34,9 +34,14 @@ wary.it('write: should be able to burn data to a file', {
   random2: RANDOM2
 }, function(images) {
   return new Promise(function(resolve, reject) {
-    var stream = fs.createReadStream(images.random1);
-    var writer = imageWrite.write(images.random2, stream, {
-      size: fs.statSync(images.random1).size
+    var imageSize = fs.statSync(images.random1).size;
+
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: imageSize
     });
 
     writer.on('error', reject);
@@ -54,21 +59,112 @@ wary.it('write: should be able to burn data to a file', {
   });
 });
 
-wary.it('write: should be rejected if the size is missing', {
+wary.it('write: should be rejected if the image size is missing', {
   random1: RANDOM1,
   random2: RANDOM2
 }, function(images) {
-  var promise = new Promise(function(resolve, reject) {
-    var stream = fs.createReadStream(images.random1);
-    var writer = imageWrite.write(images.random2, stream, {
+  return new Promise(function(resolve, reject) {
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: fs.statSync(images.random2).size
+    }, {
+      stream: fs.createReadStream(images.random1),
       size: null
     });
 
     writer.on('error', reject);
     writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.be.an.instanceof(Error);
+    m.chai.expect(error.message).to.equal('Invalid image size: null');
   });
+});
 
-  m.chai.expect(promise).to.be.rejectedWith('Missing size option');
+wary.it('write: should be rejected if the image size is not a number', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: fs.statSync(images.random2).size
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: 'foo'
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.be.an.instanceof(Error);
+    m.chai.expect(error.message).to.equal('Invalid image size: foo');
+  });
+});
+
+wary.it('write: should be rejected if the drive size is missing', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: null
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: fs.statSync(images.random1).size
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.be.an.instanceof(Error);
+    m.chai.expect(error.message).to.equal('Invalid drive size: null');
+  });
+});
+
+wary.it('write: should be rejected if the drive size is not a number', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: 'foo'
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: fs.statSync(images.random1).size
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.be.an.instanceof(Error);
+    m.chai.expect(error.message).to.equal('Invalid drive size: foo');
+  });
+});
+
+wary.it('write: should be rejected if the drive is not large enough', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.random1).size;
+
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: imageSize - 1
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: imageSize
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.be.an.instanceof(Error);
+    m.chai.expect(error.code).to.equal('ENOSPC');
+    m.chai.expect(error.message).to.equal('Not enough space on the drive');
+  });
 });
 
 wary.it('check: should eventually be true on success', {
@@ -76,10 +172,16 @@ wary.it('check: should eventually be true on success', {
   random2: RANDOM2
 }, function(images) {
   return new Promise(function(resolve, reject) {
-    var stream = fs.createReadStream(images.random1);
-    var writer = imageWrite.write(images.random2, stream, {
-      check: true,
-      size: fs.statSync(images.random1).size
+    var imageSize = fs.statSync(images.random1).size;
+
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: imageSize
+    }, {
+      check: true
     });
 
     writer.on('error', reject);
@@ -101,15 +203,22 @@ wary.it('check: should eventually be false on failure', {
   createReadStreamStub.returns(stream2);
 
   return new Promise(function(resolve, reject) {
-    var writer = imageWrite.write(images.random2, stream, {
-      check: false,
-      size: fs.statSync(images.random1).size
+    var imageSize = fs.statSync(images.random1).size;
+
+    var writer = imageWrite.write({
+      device: images.random2,
+      size: imageSize * 1.2
+    }, {
+      stream: stream,
+      size: imageSize
+    }, {
+      check: true
     });
 
     writer.on('error', reject);
     writer.on('done', resolve);
   }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.true;
+    m.chai.expect(results.passedValidation).to.be.false;
     createReadStreamStub.restore();
   });
 });
@@ -120,10 +229,16 @@ wary.it('transform: should be able to decompress an gz image', {
   output: RANDOM2
 }, function(images) {
   return new Promise(function(resolve, reject) {
-    var stream = fs.createReadStream(images.input);
-    var writer = imageWrite.write(images.output, stream, {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.write({
+      device: images.output,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.input),
+      size: imageSize
+    }, {
       check: true,
-      size: fs.statSync(images.input).size,
       transform: zlib.createGunzip()
     });
 

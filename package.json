@@ -30,6 +30,7 @@
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
+    "drivelist": "^3.2.2",
     "jsdoc-to-markdown": "^1.1.1",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.1.0",
@@ -53,6 +54,7 @@
     "lodash": "^4.13.1",
     "progress-stream": "^1.1.1",
     "slice-stream2": "^2.0.0",
-    "stream-chunker": "^1.2.8"
+    "stream-chunker": "^1.2.8",
+    "through2": "^2.0.1"
   }
 }

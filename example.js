@@ -17,34 +17,51 @@
 'use strict';
 
 var fs = require('fs');
+var _ = require('lodash');
+var drivelist = require('drivelist');
 var imageWrite = require('./lib/write');
 
 var image = process.argv[2];
-var drive = process.argv[3];
+var device = process.argv[3];
 
 function onError(error) {
   console.error(error.message);
   process.exit(1);
 }
 
-if (!image || !drive) {
-  onError(new Error('Usage: example.js <image> <drive>'));
+if (!image || !device) {
+  onError(new Error('Usage: example.js <image> <device>'));
 }
 
-var stream = fs.createReadStream(image);
+drivelist.list(function(error, drives) {
+  if (error) {
+    return onError(error);
+  }
 
-imageWrite.write(drive, stream, {
-  check: true,
-  size: fs.statSync(image).size
-})
-  .on('error', onError)
-  .on('progress', function(state) {
-    console.log(state);
-  })
-  .on('done', function(success) {
-    if (success) {
-      console.log('Check passed');
-    } else {
-      console.error('Check failed');
-    }
+  var selectedDrive = _.find(drives, {
+    device: device
   });
+
+  if (!selectedDrive) {
+    return onError(new Error('Drive not found: ' + device));
+  }
+
+  imageWrite.write(selectedDrive, {
+    stream: fs.createReadStream(image),
+    size: fs.statSync(image).size
+  }, {
+    check: true
+  })
+    .on('error', onError)
+    .on('progress', function(state) {
+      console.log(state);
+    })
+    .on('done', function(success) {
+      if (success) {
+        console.log('Check passed');
+      } else {
+        console.error('Check failed');
+      }
+    });
+});
+
