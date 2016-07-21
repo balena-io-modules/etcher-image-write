@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.0] - 2016-07-21
+
+### Added
+
+- Require drive size to be passed as an option.
+
+### Changed
+
+- Emit an `ENOSPC` if the drive has no remaining space.
+
 ## [5.0.3] - 2016-07-17
 
 ### Changed
@@ -147,6 +157,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[6.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.3...v6.0.0
 [5.0.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.0...v5.0.1
