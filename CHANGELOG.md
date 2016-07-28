@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.1] - 2016-07-28
+
+### Changed
+
+- Make sure the device file descriptor is closed after finishing validation.
+
 ## [6.0.0] - 2016-07-21
 
 ### Added
@@ -157,6 +163,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[6.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.3...v6.0.0
 [5.0.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v5.0.1...v5.0.2
