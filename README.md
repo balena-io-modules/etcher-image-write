@@ -22,7 +22,7 @@ Documentation
 
 <a name="module_imageWrite.write"></a>
 
-### imageWrite.write(device, stream, options) ⇒ <code>EventEmitter</code>
+### imageWrite.write(drive, image, options) ⇒ <code>EventEmitter</code>
 **NOTICE:** You might need to run this function as sudo/administrator to
 avoid permission issues.
 
@@ -70,20 +70,27 @@ and a transform stream to decompress the file.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| device | <code>String</code> |  | device |
-| stream | <code>ReadStream</code> |  | readable stream |
+| drive | <code>Object</code> |  | drive |
+| drive.device | <code>String</code> |  | drive device |
+| drive.size | <code>Number</code> |  | drive size |
+| image | <code>Object</code> |  | image |
+| image.stream | <code>ReadStream</code> |  | image readable stream |
+| image.size | <code>Number</code> |  | image stream size |
 | options | <code>Object</code> |  | options |
-| options.size | <code>Number</code> |  | input stream size |
 | [options.transform] | <code>TransformStream</code> |  | transform stream |
 | [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
+| [options.bmap] | <code>String</code> |  | bmap file contents |
 
 **Example**  
 ```js
-var myStream = fs.createReadStream('my/image');
-
-var emitter = imageWrite.write('/dev/disk2', myStream, {
-  check: true,
+var emitter = imageWrite.write({
+  device: '/dev/disk2',
+  size: 2014314496
+}, {
+  stream: fs.createWriteStream('my/image'),
   size: fs.statSync('my/image').size
+}, {
+  check: true
 });
 
 emitter.on('progress', function(state) {
