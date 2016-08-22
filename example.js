@@ -46,7 +46,11 @@ drivelist.list(function(error, drives) {
     return onError(new Error('Drive not found: ' + device));
   }
 
-  imageWrite.write(selectedDrive, {
+  imageWrite.write({
+    fd: fs.openSync(selectedDrive.raw, 'rs+'),
+    device: selectedDrive.raw,
+    size: selectedDrive.size
+  }, {
     stream: fs.createReadStream(image),
     size: fs.statSync(image).size
   }, {

@@ -26,6 +26,8 @@ Documentation
 **NOTICE:** You might need to run this function as sudo/administrator to
 avoid permission issues.
 
+We recommend passing file descriptors opened with `rs+` flags.
+
 The returned EventEmitter instance emits the following events:
 
 - `progress`: A progress event that passes a state object of the form:
@@ -73,6 +75,7 @@ and a transform stream to decompress the file.
 | drive | <code>Object</code> |  | drive |
 | drive.device | <code>String</code> |  | drive device |
 | drive.size | <code>Number</code> |  | drive size |
+| drive.fd | <code>Number</code> |  | drive file descriptor |
 | image | <code>Object</code> |  | image |
 | image.stream | <code>ReadStream</code> |  | image readable stream |
 | image.size | <code>Number</code> |  | image stream size |
@@ -84,7 +87,8 @@ and a transform stream to decompress the file.
 **Example**  
 ```js
 var emitter = imageWrite.write({
-  device: '/dev/disk2',
+  fd: fs.openSync('/dev/rdisk2', 'rs+'),
+  device: '/dev/rdisk2',
   size: 2014314496
 }, {
   stream: fs.createWriteStream('my/image'),
