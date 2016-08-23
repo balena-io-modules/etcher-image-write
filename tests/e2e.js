@@ -39,6 +39,7 @@ wary.it('write: should be able to burn data to a file', {
     var imageSize = fs.statSync(images.random1).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: imageSize * 1.2
     }, {
@@ -70,6 +71,7 @@ wary.it('write: should be able to burn a bmap image to a file', {
     var imageSize = fs.statSync(images.input).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
       device: images.output,
       size: imageSize * 1.2
     }, {
@@ -102,6 +104,7 @@ wary.it('write: should be rejected if the image size is missing', {
 }, function(images) {
   return new Promise(function(resolve, reject) {
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: fs.statSync(images.random2).size
     }, {
@@ -123,6 +126,7 @@ wary.it('write: should be rejected if the image size is not a number', {
 }, function(images) {
   return new Promise(function(resolve, reject) {
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: fs.statSync(images.random2).size
     }, {
@@ -144,6 +148,7 @@ wary.it('write: should be rejected if the drive size is missing', {
 }, function(images) {
   return new Promise(function(resolve, reject) {
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: null
     }, {
@@ -165,6 +170,7 @@ wary.it('write: should be rejected if the drive size is not a number', {
 }, function(images) {
   return new Promise(function(resolve, reject) {
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: 'foo'
     }, {
@@ -188,6 +194,7 @@ wary.it('write: should be rejected if the drive is not large enough', {
     var imageSize = fs.statSync(images.random1).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: imageSize - 1
     }, {
@@ -212,6 +219,7 @@ wary.it('check: should eventually be true on success', {
     var imageSize = fs.statSync(images.random1).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: imageSize * 1.2
     }, {
@@ -243,6 +251,7 @@ wary.it('check: should eventually be false on failure', {
     var imageSize = fs.statSync(images.random1).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
       device: images.random2,
       size: imageSize * 1.2
     }, {
@@ -269,6 +278,7 @@ wary.it('transform: should be able to decompress an gz image', {
     var imageSize = fs.statSync(images.input).size;
 
     var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
       device: images.output,
       size: imageSize * 1.2
     }, {
