@@ -211,6 +211,29 @@ wary.it('write: should be rejected if the drive is not large enough', {
   });
 });
 
+wary.it('write: should not be rejected if the drive has the same capacity as the image size', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.random1).size;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
+      device: images.random2,
+      size: imageSize
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: imageSize
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).catch(function(error) {
+    m.chai.expect(error).to.not.exist;
+  });
+});
+
 wary.it('check: should eventually be true on success', {
   random1: RANDOM1,
   random2: RANDOM2
