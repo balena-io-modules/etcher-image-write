@@ -2,7 +2,7 @@
   "name": "etcher-image-write",
   "version": "7.0.0",
   "description": "The cross-platform way to stream an OS image to a device",
-  "main": "lib/write.js",
+  "main": "lib/index.js",
   "homepage": "https://github.com/resin-io-modules/etcher-image-write",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
   "scripts": {
     "test": "npm run lint && node tests/e2e.js",
     "lint": "jshint --config .jshintrc --reporter=node_modules/jshint-stylish lib tests bin example.js",
-    "readme": "jsdoc2md --template doc/README.hbs lib/write.js > README.md"
+    "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",

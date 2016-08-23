@@ -22,7 +22,7 @@ var zlib = require('zlib');
 var wary = require('wary');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
-var imageWrite = require('../lib/write');
+var imageWrite = require('../lib/index');
 
 var RANDOM1 = path.join(__dirname, 'images', '1.random');
 var RANDOM2 = path.join(__dirname, 'images', '2.random');

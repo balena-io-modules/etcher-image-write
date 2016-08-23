@@ -19,7 +19,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 var drivelist = require('drivelist');
-var imageWrite = require('./lib/write');
+var imageWrite = require('./lib/index');
 
 var image = process.argv[2];
 var device = process.argv[3];
@@ -60,12 +60,14 @@ drivelist.list(function(error, drives) {
     .on('progress', function(state) {
       console.log(state);
     })
-    .on('done', function(success) {
-      if (success) {
+    .on('done', function(results) {
+      if (results.passedValidation) {
         console.log('Check passed');
       } else {
         console.error('Check failed');
       }
+
+      console.log(results);
     });
 });
 
