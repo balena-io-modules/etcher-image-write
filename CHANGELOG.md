@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [7.0.1] - 2016-08-24
+
+### Changed
+
+- Don't throw `ENOSPC` if the drive capacity is equal to the image size.
+
 ## [7.0.0] - 2016-08-23
 
 ### Changed
@@ -181,6 +187,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[7.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v6.1.1...v7.0.0
 [6.1.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v6.1.0...v6.1.1
 [6.1.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v6.0.1...v6.1.0
