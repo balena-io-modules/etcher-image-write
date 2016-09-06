@@ -61,12 +61,6 @@ drivelist.list(function(error, drives) {
       console.log(state);
     })
     .on('done', function(results) {
-      if (results.passedValidation) {
-        console.log('Check passed');
-      } else {
-        console.error('Check failed');
-      }
-
       console.log(results);
     });
 });
