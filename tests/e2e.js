@@ -50,7 +50,6 @@ wary.it('write: should be able to burn data to a file', {
     writer.on('error', reject);
     writer.on('done', resolve);
   }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.true;
     m.chai.expect(results.sourceChecksum).to.equal('2f73fef');
 
     return Promise.props({
@@ -86,7 +85,6 @@ wary.it('write: should be able to burn a bmap image to a file', {
     writer.on('error', reject);
     writer.on('done', resolve);
   }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.true;
     m.chai.expect(results.sourceChecksum).to.be.undefined;
 
     return Promise.props({
@@ -254,8 +252,6 @@ wary.it('check: should eventually be true on success', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.true;
   });
 });
 
@@ -286,10 +282,15 @@ wary.it('check: should eventually be false on failure', {
 
     writer.on('error', reject);
     writer.on('done', resolve);
-  }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.false;
-    createReadStreamStub.restore();
-  });
+
+  // Ensure we don't get false positives if the `.catch()`
+  // block is never called because validation passed.
+  }).then(function() {
+    throw new Error('Validation Passed');
+
+  }).catch(function(error) {
+    m.chai.expect(error.type).to.equal('etcher.validation');
+  }).finally(createReadStreamStub.restore);
 });
 
 wary.it('transform: should be able to decompress an gz image', {
@@ -315,8 +316,6 @@ wary.it('transform: should be able to decompress an gz image', {
     writer.on('error', reject);
     writer.on('done', resolve);
   }).then(function(results) {
-    m.chai.expect(results.passedValidation).to.be.true;
-
     return Promise.props({
       real: fs.readFileAsync(images.real),
       output: fs.readFileAsync(images.output)

@@ -106,13 +106,18 @@ emitter.on('error', function(error) {
 });
 
 emitter.on('done', function(results) {
-  if (results.passedValidation) {
-    console.log('Success!');
-  } else {
-    console.log('Failed!');
-  }
+  console.log('Success!');
 });
 ```
+
+Errors
+------
+
+The errors we emit can be identified by their `code` or `type` properties.
+
+Consult [this
+file](https://github.com/resin-io-modules/etcher-image-write/blob/master/lib/errors.js)
+for a list of defined types.
 
 Support
 -------
