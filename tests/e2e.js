@@ -289,7 +289,7 @@ wary.it('check: should eventually be false on failure', {
     throw new Error('Validation Passed');
 
   }).catch(function(error) {
-    m.chai.expect(error.type).to.equal('etcher.validation');
+    m.chai.expect(error.code).to.equal('EVALIDATION');
   }).finally(createReadStreamStub.restore);
 });
 
