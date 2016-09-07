@@ -83,6 +83,7 @@ and a transform stream to decompress the file.
 | [options.transform] | <code>TransformStream</code> |  | transform stream |
 | [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
 | [options.bmap] | <code>String</code> |  | bmap file contents |
+| [options.bytesToZeroOutFromTheBeginning] | <code>Number</code> |  | bytes to zero out from the beginning (bmap only) |
 
 **Example**  
 ```js
