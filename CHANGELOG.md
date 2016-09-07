@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.0] - 2016-09-07
+
+### Added
+
+- Add `bytesToZeroOutFromTheBeginning` option for bmap writes.
+
 ## [8.0.0] - 2016-09-06
 
 ### Removed
@@ -193,6 +199,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[8.1.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v7.0.1...v8.0.0
 [7.0.1]: https://github.com/resin-io-modules/etcher-image-write/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v6.1.1...v7.0.0
