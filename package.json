@@ -30,7 +30,7 @@
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "drivelist": "^3.2.2",
+    "drivelist": "^3.3.0",
     "jsdoc-to-markdown": "^1.1.1",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.1.0",
@@ -50,7 +50,6 @@
     "bmapflash": "^1.2.0",
     "crc32-stream": "^0.4.0",
     "dev-null-stream": "0.0.1",
-    "drivelist": "^3.3.0",
     "error": "^7.0.2",
     "lodash": "^4.13.1",
     "progress-stream": "^1.1.1",
