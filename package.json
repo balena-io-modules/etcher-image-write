@@ -24,7 +24,7 @@
   },
   "scripts": {
     "test": "npm run lint && node tests/e2e.js",
-    "lint": "jshint --config .jshintrc --reporter=node_modules/jshint-stylish lib tests bin example.js",
+    "lint": "jshint --config .jshintrc --reporter=node_modules/jshint-stylish lib tests bin samples",
     "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",

@@ -19,7 +19,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 var drivelist = require('drivelist');
-var imageWrite = require('./lib/index');
+var imageWrite = require('../lib/index');
 
 var image = process.argv[2];
 var device = process.argv[3];
@@ -30,7 +30,7 @@ function onError(error) {
 }
 
 if (!image || !device) {
-  onError(new Error('Usage: example.js <image> <device>'));
+  onError(new Error('Usage: write.js <image> <device>'));
 }
 
 drivelist.list(function(error, drives) {
