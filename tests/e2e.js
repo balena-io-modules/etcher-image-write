@@ -325,6 +325,53 @@ wary.it('transform: should be able to decompress an gz image', {
   });
 });
 
+wary.it('multiwrite: should be able to burn data to multiple files', {
+  input: RANDOM1,
+  output1: RANDOM2,
+  output2: RANDOM3
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.multiwrite([
+      {
+        fd: fs.openSync(images.output1, 'rs+'),
+        device: images.output1,
+        size: imageSize * 1.2
+      },
+      {
+        fd: fs.openSync(images.output2, 'rs+'),
+        device: images.output2,
+        size: imageSize * 1.2
+      }
+    ], {
+      stream: fs.createReadStream(images.input),
+      size: imageSize
+    });
+
+    let flashedDrives = 0;
+
+    writer.on('error', reject);
+    writer.on('done', (results) => {
+      m.chai.expect(results.sourceChecksum).to.equal('2f73fef');
+
+      flashedDrives += 1;
+      if (flashedDrives === 2) {
+        return resolve();
+      }
+    });
+  }).then(function() {
+    return Promise.props({
+      input: fs.readFileAsync(images.input),
+      output1: fs.readFileAsync(images.output1),
+      output2: fs.readFileAsync(images.output2)
+    }).then(function(results) {
+      m.chai.expect(results.input).to.deep.equal(results.output1);
+      m.chai.expect(results.input).to.deep.equal(results.output2);
+    });
+  });
+});
+
 wary.run().catch(function(error) {
   console.error(error.message);
   console.error(error.stack);
