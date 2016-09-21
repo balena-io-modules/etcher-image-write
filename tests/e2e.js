@@ -255,6 +255,29 @@ wary.it('check: should eventually be true on success', {
   });
 });
 
+wary.it('check: should eventually be true on success even if the image size is incorrect', {
+  random1: RANDOM1,
+  random2: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.random1).size * 0.8;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.random2, 'rs+'),
+      device: images.random2,
+      size: imageSize * 2
+    }, {
+      stream: fs.createReadStream(images.random1),
+      size: imageSize
+    }, {
+      check: true
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  });
+});
+
 wary.it('check: should eventually be false on failure', {
   random1: RANDOM1,
   random2: RANDOM2,
