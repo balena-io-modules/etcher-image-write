@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.3] - 2016-09-23
+
+### Changed
+
+- Fix sporadic EPERM write errors on Windows.
+- Don't consider buffer alignment bytes during the validation phase.
+
 ## [8.1.2] - 2016-09-21
 
 ### Changed
@@ -207,6 +214,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[8.1.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.0...v8.1.2
 [8.1.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v7.0.1...v8.0.0
