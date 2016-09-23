@@ -28,6 +28,7 @@ var RANDOM1 = path.join(__dirname, 'images', '1.random');
 var RANDOM2 = path.join(__dirname, 'images', '2.random');
 var RANDOM3 = path.join(__dirname, 'images', '3.random');
 var RANDOM1_GZ = path.join(__dirname, 'images', '1.random.gz');
+var UNALIGNED = path.join(__dirname, 'images', 'unaligned.random');
 var IMAGE_WITH_HOLES_IMG = path.join(__dirname, 'images', 'image-with-holes.raw');
 var IMAGE_WITH_HOLES_BMAP = path.join(__dirname, 'images', 'image-with-holes.bmap');
 
@@ -268,6 +269,29 @@ wary.it('check: should eventually be true on success even if the image size is i
       size: imageSize * 2
     }, {
       stream: fs.createReadStream(images.random1),
+      size: imageSize
+    }, {
+      check: true
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  });
+});
+
+wary.it('check: should correctly check an unaligned image', {
+  input: UNALIGNED,
+  output: RANDOM2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
+      device: images.output,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.input),
       size: imageSize
     }, {
       check: true
