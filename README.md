@@ -92,7 +92,7 @@ var emitter = imageWrite.write({
   device: '/dev/rdisk2',
   size: 2014314496
 }, {
-  stream: fs.createWriteStream('my/image'),
+  stream: fs.createReadStream('my/image'),
   size: fs.statSync('my/image').size
 }, {
   check: true
