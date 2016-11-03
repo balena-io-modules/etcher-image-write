@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [8.1.4] - 2016-11-03
+
+### Changed
+
+- Align last block to 512K, and to 1M if the block exceeds 512K.
+
 ## [8.1.3] - 2016-09-23
 
 ### Changed
@@ -214,6 +220,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[8.1.4]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.3...v8.1.4
 [8.1.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.0...v8.1.2
 [8.1.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.0.0...v8.1.0
