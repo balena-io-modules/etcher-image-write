@@ -22,8 +22,15 @@ var zlib = require('zlib');
 var wary = require('wary');
 var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
+var sliceStream = require('slice-stream2');
 var imageWrite = require('../lib/index');
 
+var UNALIGNED1 = path.join(__dirname, 'images', 'unaligned1.random');
+var UNALIGNED2 = path.join(__dirname, 'images', 'unaligned2.random');
+var UNALIGNED3 = path.join(__dirname, 'images', 'unaligned3.random');
+var UNALIGNED4 = path.join(__dirname, 'images', 'unaligned4.random');
+var UNALIGNED5 = path.join(__dirname, 'images', 'unaligned5.random');
+var UNALIGNED6 = path.join(__dirname, 'images', 'unaligned6.random');
 var RANDOM1 = path.join(__dirname, 'images', '1.random');
 var RANDOM2 = path.join(__dirname, 'images', '2.random');
 var RANDOM3 = path.join(__dirname, 'images', '3.random');
@@ -229,7 +236,101 @@ wary.it('write: should not be rejected if the drive has the same capacity as the
     writer.on('error', reject);
     writer.on('done', resolve);
   }).catch(function(error) {
-    m.chai.expect(error).to.not.exist;
+    throw error;
+  });
+});
+
+wary.it([
+  'write: should not be rejected',
+  'if the drive has the same capacity as the image size',
+  'but they are not divisible by 1 MB'
+].join(' '), {
+  input: UNALIGNED1,
+  output: UNALIGNED2
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
+      device: images.output,
+      size: imageSize
+    }, {
+      stream: fs.createReadStream(images.input),
+      size: imageSize
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).then(function() {
+    return Promise.props({
+      input: fs.readFileAsync(images.input),
+      output: fs.readFileAsync(images.output)
+    }).then(function(results) {
+      m.chai.expect(results.input).to.deep.equal(results.output);
+    });
+  });
+});
+
+wary.it('write: should align the last block to 512 kb', {
+  input: UNALIGNED3,
+  output: UNALIGNED4
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
+      device: images.output,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.input),
+      size: imageSize
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).then(function() {
+    return Promise.props({
+      input: fs.readFileAsync(images.input),
+      output: fs.readFileAsync(images.output)
+    }).then(function(results) {
+      m.chai.expect(results.output).to.deep.equal(Buffer.concat([
+        results.input,
+        Buffer.alloc(128, 0)
+      ]));
+    });
+  });
+});
+
+wary.it('write: should align the last block to 1 MB if its bigger than 512 kb but less than 1 MB', {
+  input: UNALIGNED5,
+  output: UNALIGNED6
+}, function(images) {
+  return new Promise(function(resolve, reject) {
+    var imageSize = fs.statSync(images.input).size;
+
+    var writer = imageWrite.write({
+      fd: fs.openSync(images.output, 'rs+'),
+      device: images.output,
+      size: imageSize * 1.2
+    }, {
+      stream: fs.createReadStream(images.input),
+      size: imageSize
+    });
+
+    writer.on('error', reject);
+    writer.on('done', resolve);
+  }).then(function() {
+    return Promise.props({
+      input: fs.readFileAsync(images.input),
+      output: fs.readFileAsync(images.output)
+    }).then(function(results) {
+      m.chai.expect(results.output).to.deep.equal(Buffer.concat([
+        results.input,
+        Buffer.alloc(65536 * 7, 0)
+      ]));
+    });
   });
 });
 
