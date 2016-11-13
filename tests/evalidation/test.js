@@ -21,6 +21,7 @@ const path = require('path');
 const Bluebird = require('bluebird');
 const fs = Bluebird.promisifyAll(require('fs'));
 const imageWrite = require('../../lib');
+const checksum = require('../../lib/checksum');
 
 module.exports = [
 
@@ -28,16 +29,14 @@ module.exports = [
     name: 'should throw EVALIDATION is check fails',
     data: {
       input: path.join(__dirname, 'input'),
-      mock: path.join(__dirname, 'mock'),
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
       const outputFileDescriptor = fs.openSync(data.output, 'rs+');
       const stream = fs.createReadStream(data.input);
-      const mockStream = fs.createReadStream(data.mock);
 
-      const createReadStreamStub = m.sinon.stub(fs, 'createReadStream');
-      createReadStreamStub.returns(mockStream);
+      const calculateDeviceChecksumStub = m.sinon.stub(checksum, 'calculateDeviceChecksum');
+      calculateDeviceChecksumStub.returns(Bluebird.resolve('xxxxxxx'));
 
       return new Bluebird((resolve, reject) => {
         const imageSize = fs.statSync(data.input).size;
@@ -64,7 +63,7 @@ module.exports = [
       }).catch((error) => {
         m.chai.expect(error.code).to.equal('EVALIDATION');
       }).finally(() => {
-        createReadStreamStub.restore();
+        calculateDeviceChecksumStub.restore();
         return fs.closeAsync(outputFileDescriptor);
       });
     }
