@@ -88,7 +88,7 @@ and a transform stream to decompress the file.
 **Example**  
 ```js
 var emitter = imageWrite.write({
-  fd: fs.openSync('/dev/rdisk2', 'rs+'),
+  fd: fs.openSync('/dev/rdisk2', 'rs+'), // '\\\\.\\PHYSICALDRIVE1' in Windows, for example.
   device: '/dev/rdisk2',
   size: 2014314496
 }, {
