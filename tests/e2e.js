@@ -16,464 +16,90 @@
 
 'use strict';
 
-var m = require('mochainon');
-var path = require('path');
-var zlib = require('zlib');
-var wary = require('wary');
-var Promise = require('bluebird');
-var fs = Promise.promisifyAll(require('fs'));
-var sliceStream = require('slice-stream2');
-var imageWrite = require('../lib/index');
+const m = require('mochainon');
+const path = require('path');
+const zlib = require('zlib');
+const PassThroughStream = require('stream').PassThrough;
+const wary = require('wary');
+const Bluebird = require('bluebird');
+const fs = Bluebird.promisifyAll(require('fs'));
+const sliceStream = require('slice-stream2');
+const imageWrite = require('../lib/index');
 
-var UNALIGNED1 = path.join(__dirname, 'images', 'unaligned1.random');
-var UNALIGNED2 = path.join(__dirname, 'images', 'unaligned2.random');
-var UNALIGNED3 = path.join(__dirname, 'images', 'unaligned3.random');
-var UNALIGNED4 = path.join(__dirname, 'images', 'unaligned4.random');
-var UNALIGNED5 = path.join(__dirname, 'images', 'unaligned5.random');
-var UNALIGNED6 = path.join(__dirname, 'images', 'unaligned6.random');
-var RANDOM1 = path.join(__dirname, 'images', '1.random');
-var RANDOM2 = path.join(__dirname, 'images', '2.random');
-var RANDOM3 = path.join(__dirname, 'images', '3.random');
-var RANDOM1_GZ = path.join(__dirname, 'images', '1.random.gz');
-var UNALIGNED = path.join(__dirname, 'images', 'unaligned.random');
-var IMAGE_WITH_HOLES_IMG = path.join(__dirname, 'images', 'image-with-holes.raw');
-var IMAGE_WITH_HOLES_BMAP = path.join(__dirname, 'images', 'image-with-holes.bmap');
+const RANDOM1 = path.join(__dirname, 'images', '1.random');
+const RANDOM2 = path.join(__dirname, 'images', '2.random');
+const RANDOM3 = path.join(__dirname, 'images', '3.random');
 
-wary.it('write: should be able to burn data to a file', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size;
+const runImageTest = (directory) => {
+  const input = path.join(directory, 'input');
+  const expected = path.join(directory, 'expected');
+  const output = path.join(directory, 'output');
 
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: imageSize
+  const checksum = fs.readFileSync(path.join(directory, 'checksum'), {
+    encoding: 'utf8'
+  }).trim();
+
+  const transform = fs.readFileSync(path.join(directory, 'transform'), {
+    encoding: 'utf8'
+  }).trim();
+
+  const transforms = {
+    gzip: zlib.createGunzip()
+  };
+
+  wary.it(`RUNNING IMAGE TEST: ${path.basename(directory)}`, {
+    input,
+    output
+  }, (data) => {
+    return new Bluebird((resolve, reject) => {
+      const imageSize = fs.statSync(input).size;
+
+      const writer = imageWrite.write({
+        fd: fs.openSync(output, 'rs+'),
+        device: output,
+        size: fs.statSync(output).size
+      }, {
+        stream: fs.createReadStream(input),
+        size: fs.statSync(input).size
+      }, {
+        check: true,
+        transform: transforms[transform] || new PassThroughStream()
+      });
+
+      writer.on('error', reject);
+      writer.on('done', resolve);
+    }).then((results) => {
+      m.chai.expect(results.sourceChecksum).to.equal(checksum);
+
+      return Bluebird.props({
+        expected: fs.readFileAsync(expected),
+        output: fs.readFileAsync(output)
+      }).then((results) => {
+        m.chai.expect(results.expected).to.deep.equal(results.output);
+      });
     });
 
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function(results) {
-    m.chai.expect(results.sourceChecksum).to.equal('2f73fef');
-
-    return Promise.props({
-      random1: fs.readFileAsync(images.random1),
-      random2: fs.readFileAsync(images.random2)
-    }).then(function(results) {
-      m.chai.expect(results.random1).to.deep.equal(results.random2);
-    });
   });
-});
+};
 
-wary.it('write: should be able to burn a bmap image to a file', {
-  input: IMAGE_WITH_HOLES_IMG,
-  bmap: IMAGE_WITH_HOLES_BMAP,
-  output: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    }, {
-      bmap: fs.readFileSync(images.bmap, {
-        encoding: 'utf8'
-      })
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function(results) {
-    m.chai.expect(results.sourceChecksum).to.be.undefined;
-
-    return Promise.props({
-      input: fs.readFileAsync(images.input),
-      output: fs.readFileAsync(images.output)
-    }).then(function(results) {
-      m.chai.expect(results.input).to.not.deep.equal(results.output);
-    });
+const runTest = (name) => {
+  require(path.join(__dirname, name, 'test')).forEach((test) => {
+    wary.it(`RUNNING SUITE (${name}): ${test.name}`, test.data, test.case);
   });
-});
+};
 
-wary.it('write: should be rejected if the image size is missing', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: fs.statSync(images.random2).size
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: null
-    });
+runImageTest(path.join(__dirname, 'images', 'divisible-by-1024kb'));
+runImageTest(path.join(__dirname, 'images', 'divisible-by-512kb'));
+runImageTest(path.join(__dirname, 'images', 'divisible-by-128b'));
+runImageTest(path.join(__dirname, 'images', 'divisible-by-65536b'));
+runImageTest(path.join(__dirname, 'images', 'gzip'));
 
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    m.chai.expect(error).to.be.an.instanceof(Error);
-    m.chai.expect(error.message).to.equal('Invalid image size: null');
-  });
-});
+runTest('bmap');
+runTest('errors');
+runTest('not-large-enough');
+runTest('evalidation');
 
-wary.it('write: should be rejected if the image size is not a number', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: fs.statSync(images.random2).size
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: 'foo'
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    m.chai.expect(error).to.be.an.instanceof(Error);
-    m.chai.expect(error.message).to.equal('Invalid image size: foo');
-  });
-});
-
-wary.it('write: should be rejected if the drive size is missing', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: null
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: fs.statSync(images.random1).size
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    m.chai.expect(error).to.be.an.instanceof(Error);
-    m.chai.expect(error.message).to.equal('Invalid drive size: null');
-  });
-});
-
-wary.it('write: should be rejected if the drive size is not a number', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: 'foo'
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: fs.statSync(images.random1).size
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    m.chai.expect(error).to.be.an.instanceof(Error);
-    m.chai.expect(error.message).to.equal('Invalid drive size: foo');
-  });
-});
-
-wary.it('write: should be rejected if the drive is not large enough', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize - 1
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: imageSize
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    m.chai.expect(error).to.be.an.instanceof(Error);
-    m.chai.expect(error.code).to.equal('ENOSPC');
-    m.chai.expect(error.message).to.equal('Not enough space on the drive');
-  });
-});
-
-wary.it('write: should not be rejected if the drive has the same capacity as the image size', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: imageSize
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).catch(function(error) {
-    throw error;
-  });
-});
-
-wary.it([
-  'write: should not be rejected',
-  'if the drive has the same capacity as the image size',
-  'but they are not divisible by 1 MB'
-].join(' '), {
-  input: UNALIGNED1,
-  output: UNALIGNED2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function() {
-    return Promise.props({
-      input: fs.readFileAsync(images.input),
-      output: fs.readFileAsync(images.output)
-    }).then(function(results) {
-      m.chai.expect(results.input).to.deep.equal(results.output);
-    });
-  });
-});
-
-wary.it('write: should align the last block to 512 kb', {
-  input: UNALIGNED3,
-  output: UNALIGNED4
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function() {
-    return Promise.props({
-      input: fs.readFileAsync(images.input),
-      output: fs.readFileAsync(images.output)
-    }).then(function(results) {
-      m.chai.expect(results.output).to.deep.equal(Buffer.concat([
-        results.input,
-        Buffer.alloc(128, 0)
-      ]));
-    });
-  });
-});
-
-wary.it('write: should align the last block to 1 MB if its bigger than 512 kb but less than 1 MB', {
-  input: UNALIGNED5,
-  output: UNALIGNED6
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function() {
-    return Promise.props({
-      input: fs.readFileAsync(images.input),
-      output: fs.readFileAsync(images.output)
-    }).then(function(results) {
-      m.chai.expect(results.output).to.deep.equal(Buffer.concat([
-        results.input,
-        Buffer.alloc(65536 * 7, 0)
-      ]));
-    });
-  });
-});
-
-wary.it('check: should eventually be true on success', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: imageSize
-    }, {
-      check: true
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  });
-});
-
-wary.it('check: should eventually be true on success even if the image size is incorrect', {
-  random1: RANDOM1,
-  random2: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size * 0.8;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize * 2
-    }, {
-      stream: fs.createReadStream(images.random1),
-      size: imageSize
-    }, {
-      check: true
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  });
-});
-
-wary.it('check: should correctly check an unaligned image', {
-  input: UNALIGNED,
-  output: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    }, {
-      check: true
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  });
-});
-
-wary.it('check: should eventually be false on failure', {
-  random1: RANDOM1,
-  random2: RANDOM2,
-  random3: RANDOM3
-}, function(images) {
-  var stream = fs.createReadStream(images.random1);
-  var stream2 = fs.createReadStream(images.random3);
-
-  var createReadStreamStub = m.sinon.stub(fs, 'createReadStream');
-  createReadStreamStub.returns(stream2);
-
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.random1).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.random2, 'rs+'),
-      device: images.random2,
-      size: imageSize * 1.2
-    }, {
-      stream: stream,
-      size: imageSize
-    }, {
-      check: true
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-
-  // Ensure we don't get false positives if the `.catch()`
-  // block is never called because validation passed.
-  }).then(function() {
-    throw new Error('Validation Passed');
-
-  }).catch(function(error) {
-    m.chai.expect(error.code).to.equal('EVALIDATION');
-  }).finally(createReadStreamStub.restore);
-});
-
-wary.it('transform: should be able to decompress an gz image', {
-  input: RANDOM1_GZ,
-  real: RANDOM1,
-  output: RANDOM2
-}, function(images) {
-  return new Promise(function(resolve, reject) {
-    var imageSize = fs.statSync(images.input).size;
-
-    var writer = imageWrite.write({
-      fd: fs.openSync(images.output, 'rs+'),
-      device: images.output,
-      size: imageSize * 1.2
-    }, {
-      stream: fs.createReadStream(images.input),
-      size: imageSize
-    }, {
-      check: true,
-      transform: zlib.createGunzip()
-    });
-
-    writer.on('error', reject);
-    writer.on('done', resolve);
-  }).then(function(results) {
-    return Promise.props({
-      real: fs.readFileAsync(images.real),
-      output: fs.readFileAsync(images.output)
-    }).then(function(results) {
-      m.chai.expect(results.real).to.deep.equal(results.output);
-    });
-  });
-});
-
-wary.run().catch(function(error) {
+wary.run().catch((error) => {
   console.error(error.message);
   console.error(error.stack);
   process.exit(1);
