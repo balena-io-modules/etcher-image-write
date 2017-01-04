@@ -32,7 +32,7 @@ module.exports = [
     },
     case: (data) => {
       return new Bluebird((resolve, reject) => {
-        var writer = imageWrite.write({
+        const writer = imageWrite.write({
           fd: fs.openSync(data.output, 'rs+'),
           device: data.output,
           size: fs.statSync(data.output).size

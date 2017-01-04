@@ -23,12 +23,7 @@ const PassThroughStream = require('stream').PassThrough;
 const wary = require('wary');
 const Bluebird = require('bluebird');
 const fs = Bluebird.promisifyAll(require('fs'));
-const sliceStream = require('slice-stream2');
 const imageWrite = require('../lib/index');
-
-const RANDOM1 = path.join(__dirname, 'images', '1.random');
-const RANDOM2 = path.join(__dirname, 'images', '2.random');
-const RANDOM3 = path.join(__dirname, 'images', '3.random');
 
 const runImageTest = (directory) => {
   const input = path.join(directory, 'input');
@@ -52,15 +47,13 @@ const runImageTest = (directory) => {
     output
   }, (data) => {
     return new Bluebird((resolve, reject) => {
-      const imageSize = fs.statSync(input).size;
-
       const writer = imageWrite.write({
-        fd: fs.openSync(output, 'rs+'),
-        device: output,
-        size: fs.statSync(output).size
+        fd: fs.openSync(data.output, 'rs+'),
+        device: data.output,
+        size: fs.statSync(data.output).size
       }, {
-        stream: fs.createReadStream(input),
-        size: fs.statSync(input).size
+        stream: fs.createReadStream(data.input),
+        size: fs.statSync(data.input).size
       }, {
         check: true,
         transform: transforms[transform] || new PassThroughStream()
@@ -73,9 +66,9 @@ const runImageTest = (directory) => {
 
       return Bluebird.props({
         expected: fs.readFileAsync(expected),
-        output: fs.readFileAsync(output)
-      }).then((results) => {
-        m.chai.expect(results.expected).to.deep.equal(results.output);
+        output: fs.readFileAsync(data.output)
+      }).then((files) => {
+        m.chai.expect(files.expected).to.deep.equal(files.output);
       });
     });
 

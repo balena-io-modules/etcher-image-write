@@ -57,8 +57,8 @@ module.exports = [
         return Bluebird.props({
           input: fs.readFileAsync(data.input),
           output: fs.readFileAsync(data.output)
-        }).then((results) => {
-          m.chai.expect(results.input).to.not.deep.equal(results.output);
+        }).then((files) => {
+          m.chai.expect(files.input).to.not.deep.equal(files.output);
         });
       });
     }
