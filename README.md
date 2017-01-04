@@ -98,15 +98,15 @@ var emitter = imageWrite.write({
   check: true
 });
 
-emitter.on('progress', function(state) {
+emitter.on('progress', (state) => {
   console.log(state);
 });
 
-emitter.on('error', function(error) {
+emitter.on('error', (error) => {
   console.error(error);
 });
 
-emitter.on('done', function(results) {
+emitter.on('done', (results) => {
   console.log('Success!');
 });
 ```

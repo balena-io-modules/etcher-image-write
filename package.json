@@ -24,16 +24,15 @@
   },
   "scripts": {
     "test": "npm run lint && node tests/e2e.js",
-    "lint": "jshint --config .jshintrc --reporter=node_modules/jshint-stylish lib tests bin example.js",
+    "lint": "eslint lib tests bin example.js",
     "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
     "drivelist": "^3.3.0",
+    "eslint": "^3.12.2",
     "jsdoc-to-markdown": "^1.1.1",
-    "jshint": "^2.9.2",
-    "jshint-stylish": "^2.1.0",
     "mochainon": "^1.0.0",
     "rindle": "^1.3.0",
     "string-to-stream": "^1.0.1",
