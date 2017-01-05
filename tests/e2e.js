@@ -46,9 +46,10 @@ const runImageTest = (directory) => {
     input,
     output
   }, (data) => {
+    const outputFileDescriptor = fs.openSync(data.output, 'rs+');
     return new Bluebird((resolve, reject) => {
       const writer = imageWrite.write({
-        fd: fs.openSync(data.output, 'rs+'),
+        fd: outputFileDescriptor,
         device: data.output,
         size: fs.statSync(data.output).size
       }, {
@@ -61,6 +62,8 @@ const runImageTest = (directory) => {
 
       writer.on('error', reject);
       writer.on('done', resolve);
+    }).tap(() => {
+      return fs.closeAsync(outputFileDescriptor);
     }).then((results) => {
       m.chai.expect(results.sourceChecksum).to.equal(checksum);
 

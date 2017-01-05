@@ -18,8 +18,8 @@
 
 const m = require('mochainon');
 const path = require('path');
-const fs = require('fs');
 const Bluebird = require('bluebird');
+const fs = Bluebird.promisifyAll(require('fs'));
 const imageWrite = require('../../lib');
 
 module.exports = [
@@ -32,6 +32,7 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
       const stream = fs.createReadStream(data.input);
       const mockStream = fs.createReadStream(data.mock);
 
@@ -42,7 +43,7 @@ module.exports = [
         const imageSize = fs.statSync(data.input).size;
 
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: imageSize * 1.2
         }, {
@@ -62,7 +63,10 @@ module.exports = [
 
       }).catch((error) => {
         m.chai.expect(error.code).to.equal('EVALIDATION');
-      }).finally(createReadStreamStub.restore);
+      }).finally(() => {
+        createReadStreamStub.restore();
+        return fs.closeAsync(outputFileDescriptor);
+      });
     }
   }
 
