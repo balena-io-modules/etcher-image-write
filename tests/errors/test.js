@@ -18,8 +18,8 @@
 
 const m = require('mochainon');
 const path = require('path');
-const fs = require('fs');
 const Bluebird = require('bluebird');
+const fs = Bluebird.promisifyAll(require('fs'));
 const imageWrite = require('../../lib');
 
 module.exports = [
@@ -31,9 +31,11 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+
       return new Bluebird((resolve, reject) => {
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: fs.statSync(data.output).size
         }, {
@@ -48,6 +50,8 @@ module.exports = [
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid image size: null');
+      }).finally(() => {
+        return fs.closeAsync(outputFileDescriptor);
       });
     }
   },
@@ -59,9 +63,11 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+
       return new Bluebird((resolve, reject) => {
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: fs.statSync(data.output).size
         }, {
@@ -76,6 +82,8 @@ module.exports = [
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid image size: foo');
+      }).finally(() => {
+        return fs.closeAsync(outputFileDescriptor);
       });
     }
   },
@@ -87,9 +95,11 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+
       return new Bluebird((resolve, reject) => {
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: null
         }, {
@@ -104,6 +114,8 @@ module.exports = [
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid drive size: null');
+      }).finally(() => {
+        return fs.closeAsync(outputFileDescriptor);
       });
     }
   },
@@ -115,9 +127,11 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+
       return new Bluebird((resolve, reject) => {
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: 'foo'
         }, {
@@ -132,6 +146,8 @@ module.exports = [
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid drive size: foo');
+      }).finally(() => {
+        return fs.closeAsync(outputFileDescriptor);
       });
     }
   }

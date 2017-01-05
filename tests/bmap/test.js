@@ -18,8 +18,8 @@
 
 const m = require('mochainon');
 const path = require('path');
-const fs = require('fs');
 const Bluebird = require('bluebird');
+const fs = Bluebird.promisifyAll(require('fs'));
 const imageWrite = require('../../lib');
 
 module.exports = [
@@ -32,11 +32,13 @@ module.exports = [
       output: path.join(__dirname, 'output')
     },
     case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+
       return new Bluebird((resolve, reject) => {
         const imageSize = fs.statSync(data.input).size;
 
         const writer = imageWrite.write({
-          fd: fs.openSync(data.output, 'rs+'),
+          fd: outputFileDescriptor,
           device: data.output,
           size: imageSize
         }, {
@@ -51,6 +53,8 @@ module.exports = [
 
         writer.on('error', reject);
         writer.on('done', resolve);
+      }).tap(() => {
+        return fs.closeAsync(outputFileDescriptor);
       }).then((results) => {
         m.chai.expect(results.sourceChecksum).to.be.undefined;
 
