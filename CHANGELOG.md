@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [9.0.0] - 2017-01-05
+
+### Changed
+
+- Fix non-working CLI example.
+- Retry read operations up to 10 times on `EIO`.
+- Catch unhandled error events from the first stream of `utils.safePipe()`.
+- Don't close drive file descriptor after validation.
+
 ## [8.1.5] - 2017-01-04
 
 ### Changed
@@ -226,6 +235,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Throw an error if no stream size information.
 - Fix test suite Windows issues on NodeJS v0.10.
 
+[9.0.0]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.5...v9.0.0
 [8.1.5]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.4...v8.1.5
 [8.1.4]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.3...v8.1.4
 [8.1.3]: https://github.com/resin-io-modules/etcher-image-write/compare/v8.1.2...v8.1.3
