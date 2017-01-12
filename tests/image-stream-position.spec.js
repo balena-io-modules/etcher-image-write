@@ -32,11 +32,18 @@ describe('ImageStreamPosition', function() {
 
   describe('.setStreamPosition()', function() {
 
-    it('should be able to update the stream position', function() {
+    it('should be able to update a pristine instance', function() {
       const position = new ImageStreamPosition();
       m.chai.expect(position.getStreamPosition()).to.equal(0);
-      position.setStreamPosition(65536);
-      m.chai.expect(position.getStreamPosition()).to.equal(65536);
+      position.setStreamPosition(100);
+      m.chai.expect(position.getStreamPosition()).to.equal(100);
+    });
+
+    it('should be able to update a dirty instance', function() {
+      const position = new ImageStreamPosition();
+      position.setStreamPosition(100);
+      position.setStreamPosition(28);
+      m.chai.expect(position.getStreamPosition()).to.equal(28);
     });
 
   });
@@ -52,7 +59,7 @@ describe('ImageStreamPosition', function() {
 
     it('should be able to increment a dirty instance', function() {
       const position = new ImageStreamPosition();
-      position.setStreamPosition(100);
+      position.incrementStreamPosition(100);
       position.incrementStreamPosition(28);
       m.chai.expect(position.getStreamPosition()).to.equal(128);
     });
