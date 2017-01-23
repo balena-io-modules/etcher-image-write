@@ -36,7 +36,9 @@ module.exports = [
       const stream = fs.createReadStream(data.input);
 
       const calculateDeviceChecksumStub = m.sinon.stub(checksum, 'calculateDeviceChecksum');
-      calculateDeviceChecksumStub.returns(Bluebird.resolve('xxxxxxx'));
+      calculateDeviceChecksumStub.returns(Bluebird.resolve({
+        crc32: 'xxxxxxx'
+      }));
 
       return new Bluebird((resolve, reject) => {
         const imageSize = fs.statSync(data.input).size;
@@ -49,7 +51,8 @@ module.exports = [
           stream: stream,
           size: imageSize
         }, {
-          check: true
+          check: true,
+          checksumAlgorithms: [ 'crc32' ]
         });
 
         writer.on('error', reject);
@@ -61,6 +64,54 @@ module.exports = [
         throw new Error('Validation Passed');
       }).catch((error) => {
         m.chai.expect(error.code).to.equal('EVALIDATION');
+      }).finally(() => {
+        calculateDeviceChecksumStub.restore();
+        return fs.closeAsync(outputFileDescriptor);
+      });
+    }
+  },
+
+  {
+    name: 'should throw if invalid / unavailable checksum algorithm requested',
+    data: {
+      input: path.join(__dirname, 'input'),
+      output: path.join(__dirname, 'output')
+    },
+    case: (data) => {
+      const outputFileDescriptor = fs.openSync(data.output, 'rs+');
+      const stream = fs.createReadStream(data.input);
+
+      const calculateDeviceChecksumStub = m.sinon.stub(checksum, 'calculateDeviceChecksum');
+      calculateDeviceChecksumStub.returns(Bluebird.resolve({
+        crc32: 'xxxxxxx'
+      }));
+
+      return new Bluebird((resolve, reject) => {
+        const imageSize = fs.statSync(data.input).size;
+
+        const writer = imageWrite.write({
+          fd: outputFileDescriptor,
+          device: data.output,
+          size: imageSize * 1.2
+        }, {
+          stream: stream,
+          size: imageSize
+        }, {
+          check: true,
+          checksumAlgorithms: [ 'crc32', 'state68' ]
+        });
+
+        writer.on('error', reject);
+        writer.on('done', resolve);
+
+      // Ensure we don't get false positives if the `.catch()`
+      // block is never called because validation passed.
+      }).then(() => {
+        throw new Error('Validation Passed');
+
+      }).catch((error) => {
+        m.chai.expect(error).to.be.an.instanceof(Error);
+        m.chai.expect(error.message).to.equal('Digest method not supported "state68"');
       }).finally(() => {
         calculateDeviceChecksumStub.restore();
         return fs.closeAsync(outputFileDescriptor);
