@@ -89,6 +89,7 @@ runImageTest(path.join(__dirname, 'images', 'divisible-by-512kb'));
 runImageTest(path.join(__dirname, 'images', 'divisible-by-128b'));
 runImageTest(path.join(__dirname, 'images', 'divisible-by-65536b'));
 runImageTest(path.join(__dirname, 'images', 'gzip'));
+runImageTest(path.join(__dirname, 'images', 'not-divisible-by-pow-2'));
 
 runTest('bmap');
 runTest('errors');
