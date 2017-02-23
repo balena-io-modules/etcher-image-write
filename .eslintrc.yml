@@ -322,7 +322,7 @@ rules:
   no-array-constructor:
     - error
   no-bitwise:
-    - error
+    - off
   no-continue:
     - error
   no-inline-comments:
