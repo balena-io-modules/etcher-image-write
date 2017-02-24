@@ -54,6 +54,10 @@ module.exports = [
         writer.on('error', reject);
         writer.on('done', resolve);
       }).tap(() => {
+        // Check that the output size conforms to the size
+        // specified in the bmap (9 blocks @ 4096 bytes)
+        const stats = fs.fstatSync(outputFileDescriptor);
+        m.chai.expect(stats.size).to.equal(9 * 4096);
         return fs.closeAsync(outputFileDescriptor);
       }).then((results) => {
         m.chai.expect(results.sourceChecksum).to.be.undefined;
@@ -62,7 +66,7 @@ module.exports = [
           input: fs.readFileAsync(data.input),
           output: fs.readFileAsync(data.output)
         }).then((files) => {
-          m.chai.expect(files.input).to.not.deep.equal(files.output);
+          m.chai.expect(files.input).to.deep.equal(files.output);
         });
       });
     }
