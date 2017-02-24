@@ -24,7 +24,7 @@
   },
   "scripts": {
     "test": "npm run lint && npm run test-node && npm run test-electron",
-    "test-node": "mocha --recursive tests/*.spec.js -R spec && node tests/e2e.js",
+    "test-node": "mocha --recursive tests/*.spec.js -R spec",
     "test-electron": "electron-mocha --recursive tests/*.spec.js -R spec",
     "lint": "eslint lib tests bin example.js",
     "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md",
@@ -40,8 +40,7 @@
     "jsdoc-to-markdown": "^2.0.1",
     "mocha": "^3.2.0",
     "mochainon": "^1.0.0",
-    "versionist": "^2.8.1",
-    "wary": "^1.1.0"
+    "versionist": "^2.8.1"
   },
   "optionalDependencies": {
     "diskpart": "^1.0.1"
