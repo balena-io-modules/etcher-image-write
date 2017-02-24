@@ -48,7 +48,7 @@ module.exports = [
         writer.on('error', reject);
         writer.on('done', resolve);
       }).then(() => {
-        throw new Error('Missing expected rejection')
+        throw new Error('Missing expected rejection');
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid image size: null');
@@ -82,7 +82,7 @@ module.exports = [
         writer.on('error', reject);
         writer.on('done', resolve);
       }).then(() => {
-        throw new Error('Missing expected rejection')
+        throw new Error('Missing expected rejection');
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid image size: foo');
@@ -116,7 +116,7 @@ module.exports = [
         writer.on('error', reject);
         writer.on('done', resolve);
       }).then(() => {
-        throw new Error('Missing expected rejection')
+        throw new Error('Missing expected rejection');
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid drive size: null');
@@ -150,7 +150,7 @@ module.exports = [
         writer.on('error', reject);
         writer.on('done', resolve);
       }).then(() => {
-        throw new Error('Missing expected rejection')
+        throw new Error('Missing expected rejection');
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.message).to.equal('Invalid drive size: foo');
