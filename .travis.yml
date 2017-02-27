@@ -2,7 +2,7 @@ language: node_js
 before_install:
   - npm install -g npm@latest
 install:
-  - npm install --global electron
+  - npm install --global electron@1.4.4
   - npm install
 script:
   - xvfb-run --server-args=$XVFB_ARGS npm test
