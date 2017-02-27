@@ -38,6 +38,8 @@ describe('E2E: Images', function() {
   images.forEach((dirname) => {
     it(path.basename(dirname), function() {
 
+      this.timeout(10e3);
+
       const inputPath = path.join(dirname, 'input');
       const expectedPath = path.join(dirname, 'expected');
       const outputPath = path.join(dirname, 'output');

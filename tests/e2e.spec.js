@@ -33,6 +33,7 @@ describe('E2E: Tests', () => {
       const cases = require(path.join(__dirname, name, 'test.js'));
       cases.forEach((test) => {
         it(test.name, function() {
+          this.timeout(10e3);
           return test.case(test.data);
         });
       });
