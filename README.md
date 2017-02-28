@@ -128,10 +128,20 @@ If you're having any problem, please [raise an issue](https://github.com/resin-i
 Tests
 -----
 
+To run the full test suite (Node & Electron), you'll need to have Electron installed
+either globally or locally in the repository (`npm install [--global] electron`).
+
 Run the test suite by doing:
 
 ```sh
 $ npm test
+```
+
+To run only the Node or Electron tests, respectively:
+
+```sh
+$ npm run test-node # OR
+$ npm run test-electron
 ```
 
 Contribute
