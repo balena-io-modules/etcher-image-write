@@ -25,7 +25,8 @@
   "scripts": {
     "test": "npm run lint && mocha --recursive tests/*.spec.js -R spec && node tests/e2e.js",
     "lint": "eslint lib tests bin example.js",
-    "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md"
+    "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md",
+    "postversion": "versionist"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
@@ -34,6 +35,7 @@
     "jsdoc-to-markdown": "^2.0.1",
     "mocha": "^3.2.0",
     "mochainon": "^1.0.0",
+    "versionist": "^2.8.1",
     "wary": "^1.1.0"
   },
   "optionalDependencies": {
