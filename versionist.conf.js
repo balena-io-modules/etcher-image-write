@@ -8,7 +8,13 @@ module.exports = {
     preset: 'prepend',
     fromLine: 5
   },
+  getIncrementLevelFromCommit: (commit) => {
+    if( /(feat)/i.test( commit.subject.type ) )
+      return 'minor'
+    return 'patch';
+  },
   transformTemplateData: (data) => {
+
     data.features = data.commits.filter((commit) => {
       return commit.subject.type === 'feat';
     });
@@ -22,5 +28,6 @@ module.exports = {
     });
 
     return data;
+
   },
 }
