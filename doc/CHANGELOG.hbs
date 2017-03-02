@@ -1,0 +1,26 @@
+
+## v{{version}} - {{moment date "Y-MM-DD"}}
+{{#if features.length}}
+
+### Features
+
+{{#each features}}
+- {{#if subject.scope}}**{{subject.scope}}:** {{/if}}{{subject.title}}
+{{/each}}
+{{/if}}
+{{#if fixes.length}}
+
+### Fixes
+
+{{#each fixes}}
+- {{#if subject.scope}}**{{subject.scope}}:** {{/if}}{{subject.title}}
+{{/each}}
+{{/if}}
+{{#if misc.length}}
+
+### Misc
+
+{{#each misc}}
+- {{#if subject.scope}}**{{subject.scope}}:** {{/if}}{{subject.title}}
+{{/each}}
+{{/if}}
