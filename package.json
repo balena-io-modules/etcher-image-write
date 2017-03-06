@@ -27,7 +27,7 @@
     "lint": "eslint lib tests bin example.js",
     "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md",
     "bump": "npm version --tag-version-prefix \"\" -m \"v%s\"",
-    "version": "npm run changelog",
+    "version": "npm run changelog && git add CHANGELOG.md",
     "changelog": "versionist"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
