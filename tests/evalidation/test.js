@@ -59,7 +59,6 @@ module.exports = [
       // block is never called because validation passed.
       }).then(() => {
         throw new Error('Validation Passed');
-
       }).catch((error) => {
         m.chai.expect(error.code).to.equal('EVALIDATION');
       }).finally(() => {

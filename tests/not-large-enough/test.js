@@ -45,6 +45,8 @@ module.exports = [
 
         writer.on('error', reject);
         writer.on('done', resolve);
+      }).then(() => {
+        throw new Error('Missing expected ENOSPC');
       }).catch((error) => {
         m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.code).to.equal('ENOSPC');
