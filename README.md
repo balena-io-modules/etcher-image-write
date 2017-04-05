@@ -84,6 +84,7 @@ and a transform stream to decompress the file.
 | [options.check] | <code>Boolean</code> | <code>false</code> | enable write check |
 | [options.bmap] | <code>String</code> |  | bmap file contents |
 | [options.bytesToZeroOutFromTheBeginning] | <code>Number</code> |  | bytes to zero out from the beginning (bmap only) |
+| [options.checksumAlgorithms] | <code>Array.&lt;String&gt;</code> |  | checksums to calculate |
 
 **Example**  
 ```js
