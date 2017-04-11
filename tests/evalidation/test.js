@@ -60,6 +60,7 @@ module.exports = [
       }).then(() => {
         throw new Error('Validation Passed');
       }).catch((error) => {
+        m.chai.expect(error).to.be.an.instanceof(Error);
         m.chai.expect(error.code).to.equal('EVALIDATION');
       }).finally(() => {
         calculateDeviceChecksumStub.restore();
