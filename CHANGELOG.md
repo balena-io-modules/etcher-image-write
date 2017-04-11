@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.0.2 - 2017-04-11
+
+### Changed
+
+- Properly throw the validation error object.
+
 ## v9.0.1 - 2017-03-06
 
 ### Misc
