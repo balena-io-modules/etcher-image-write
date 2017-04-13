@@ -8,5 +8,6 @@ script:
   - xvfb-run --server-args=$XVFB_ARGS npm test
 node_js:
   - "6"
+  - "4"
 notifications:
   email: false
