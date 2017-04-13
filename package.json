@@ -1,6 +1,6 @@
 {
   "name": "etcher-image-write",
-  "version": "9.0.2",
+  "version": "9.0.3",
   "description": "The cross-platform way to stream an OS image to a device",
   "main": "lib/index.js",
   "homepage": "https://github.com/resin-io-modules/etcher-image-write",

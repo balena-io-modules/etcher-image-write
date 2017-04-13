@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.0.3 - 2017-04-13
+
+### Changed
+
+- Support Node.js v4.
+
 ## v9.0.2 - 2017-04-11
 
 ### Changed
