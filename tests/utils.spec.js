@@ -87,6 +87,8 @@ describe('Utils', function() {
         }
       });
 
+      this.timeout(10000);
+
       setTimeout(() => {
         input.emit('error', new Error('Input error'));
       }, 1);
