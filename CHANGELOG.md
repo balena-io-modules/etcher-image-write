@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.0 - 2017-04-14
+
+### Changed
+
+- Throw `EUNPLUGGED` if drive gets unplugged half-way through.
+
 ## v9.0.3 - 2017-04-13
 
 ### Changed
