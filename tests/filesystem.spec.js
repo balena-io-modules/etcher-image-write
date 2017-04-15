@@ -351,6 +351,84 @@ describe('Filesystem', function() {
 
     });
 
+    describe('given fs.write throws "EBUSY: resource busy or locked, write"', function() {
+
+      beforeEach(function() {
+        this.fsWriteStub = m.sinon.stub(fs, 'write');
+        const error = new Error('EBUSY: resource body or locked, write');
+        error.code = 'EBUSY';
+        this.fsWriteStub.yields(error);
+      });
+
+      afterEach(function() {
+        this.fsWriteStub.restore();
+      });
+
+      describe('given the current os is darwin', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('darwin');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an unplugged error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EUNPLUGGED');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is linux', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('linux');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an EBUSY error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EBUSY');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is win32', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('win32');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an EBUSY error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EBUSY');
+            done();
+          });
+        });
+
+      });
+
+    });
+
   });
 
   describe('.readChunk()', function() {
@@ -659,6 +737,84 @@ describe('Filesystem', function() {
           filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
             m.chai.expect(error).to.be.an.instanceof(Error);
             m.chai.expect(error.code).to.equal('EIO');
+            done();
+          });
+        });
+
+      });
+
+    });
+
+    describe('given fs.read throws "EBUSY: resource busy or locked, read"', function() {
+
+      beforeEach(function() {
+        this.fsReadStub = m.sinon.stub(fs, 'read');
+        const error = new Error('EBUSY: resource busy or locked, read');
+        error.code = 'EBUSY';
+        this.fsReadStub.yields(error);
+      });
+
+      afterEach(function() {
+        this.fsReadStub.restore();
+      });
+
+      describe('given the current os is darwin', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('darwin');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an unplugged error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EUNPLUGGED');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is linux', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('linux');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an EBUSY error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EBUSY');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is win32', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('win32');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an EBUSY error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EBUSY');
             done();
           });
         });
