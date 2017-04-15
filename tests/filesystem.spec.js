@@ -39,6 +39,84 @@ describe('Filesystem', function() {
 
   describe('.writeChunk()', function() {
 
+    describe('given fs.write throws "UNKNOWN: unknown error, write"', function() {
+
+      beforeEach(function() {
+        this.fsWriteStub = m.sinon.stub(fs, 'write');
+        const error = new Error('UNKNOWN: unknown error, write');
+        error.code = 'UNKNOWN';
+        this.fsWriteStub.yields(error);
+      });
+
+      afterEach(function() {
+        this.fsWriteStub.restore();
+      });
+
+      describe('given the current os is darwin', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('darwin');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an UNKNOWN error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('UNKNOWN');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is linux', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('linux');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an UNKNOWN error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('UNKNOWN');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is win32', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('win32');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an unplugged error', function(done) {
+          filesystem.writeChunk(this.fileDescriptor, Buffer.alloc(512, 1), 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EUNPLUGGED');
+            done();
+          });
+        });
+
+      });
+
+    });
+
     describe('given fs.write throws "ENXIO: no such device or address, write"', function() {
 
       beforeEach(function() {
@@ -276,6 +354,84 @@ describe('Filesystem', function() {
   });
 
   describe('.readChunk()', function() {
+
+    describe('given fs.read throws "UNKNOWN: unknown error, read"', function() {
+
+      beforeEach(function() {
+        this.fsReadStub = m.sinon.stub(fs, 'read');
+        const error = new Error('UNKNOWN: unknown error, read');
+        error.code = 'UNKNOWN';
+        this.fsReadStub.yields(error);
+      });
+
+      afterEach(function() {
+        this.fsReadStub.restore();
+      });
+
+      describe('given the current os is darwin', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('darwin');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an UNKNOWN error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('UNKNOWN');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is linux', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('linux');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an UNKNOWN error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('UNKNOWN');
+            done();
+          });
+        });
+
+      });
+
+      describe('given the current os is win32', function() {
+
+        beforeEach(function() {
+          this.osPlatformStub = m.sinon.stub(os, 'platform');
+          this.osPlatformStub.returns('win32');
+        });
+
+        afterEach(function() {
+          this.osPlatformStub.restore();
+        });
+
+        it('should yield back an unplugged error', function(done) {
+          filesystem.readChunk(this.fileDescriptor, 512, 1024, (error) => {
+            m.chai.expect(error).to.be.an.instanceof(Error);
+            m.chai.expect(error.code).to.equal('EUNPLUGGED');
+            done();
+          });
+        });
+
+      });
+
+    });
 
     describe('given fs.read throws "ENXIO: no such device or address, read"', function() {
 
