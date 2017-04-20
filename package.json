@@ -44,7 +44,7 @@
     "versionist": "^2.8.1"
   },
   "optionalDependencies": {
-    "diskpart": "^1.0.1"
+    "diskpart": "^1.0.2"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
