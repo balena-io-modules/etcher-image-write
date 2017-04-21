@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.2 - 2017-04-21
+
+### Changed
+
+- Improve diskpart clean error message
+- Throw `EUNPLUGGED` on `EBUSY` on macOS
+
 ## v9.1.1 - 2017-04-14
 
 ### Changed
