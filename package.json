@@ -40,17 +40,14 @@
     "jsdoc-to-markdown": "^2.0.1",
     "mocha": "^3.2.0",
     "mochainon": "^1.0.0",
-    "tmp": "0.0.31",
     "versionist": "^2.8.1"
-  },
-  "optionalDependencies": {
-    "diskpart": "^1.0.2"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
     "bluebird-retry": "^0.10.1",
     "bmapflash": "^1.2.1",
     "crc32-stream": "^1.0.1",
+    "debug": "^2.6.6",
     "dev-null-stream": "0.0.1",
     "drivelist": "^5.0.14",
     "error": "^7.0.2",
@@ -58,6 +55,7 @@
     "progress-stream": "^1.2.0",
     "slice-stream2": "^2.0.1",
     "stream-chunker": "^1.2.8",
-    "through2": "^2.0.3"
+    "through2": "^2.0.3",
+    "tmp": "0.0.31"
   }
 }

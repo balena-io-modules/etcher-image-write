@@ -18,6 +18,7 @@
 
 const m = require('mochainon');
 const os = require('os');
+const childProcess = require('child_process');
 const win32 = require('../lib/win32');
 
 if (os.platform() === 'win32') {
@@ -28,19 +29,17 @@ if (os.platform() === 'win32') {
 
       this.timeout(30000);
 
-      const diskpart = require('diskpart');
-
-      describe('given diskpart always fails', function() {
+      describe('given the diskpart child process always fails', function() {
 
         beforeEach(function() {
-          this.diskpartEvaluateStub = m.sinon.stub(diskpart, 'evaluate');
+          this.childProcessExecStub = m.sinon.stub(childProcess, 'exec');
           const error = new Error('diskpart failure');
           error.code = 'EPERM';
-          this.diskpartEvaluateStub.yields(error);
+          this.childProcessExecStub.yields(error);
         });
 
         afterEach(function() {
-          this.diskpartEvaluateStub.restore();
+          this.childProcessExecStub.restore();
         });
 
         it('should yield an informational error message', function() {
