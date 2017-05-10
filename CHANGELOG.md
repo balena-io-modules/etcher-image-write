@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.3 - 2017-05-09
+
+### Changed
+
+- Get rid of the `diskpart` optional Windows module
+
 ## v9.1.2 - 2017-04-21
 
 ### Changed
