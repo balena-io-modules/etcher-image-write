@@ -27,10 +27,7 @@
     "test-node": "mocha --recursive tests/*.spec.js -R spec",
     "test-electron": "electron-mocha --recursive tests/*.spec.js -R spec",
     "lint": "eslint lib tests bin example.js",
-    "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md",
-    "bump": "npm version --tag-version-prefix \"\" -m \"v%s\"",
-    "version": "npm run changelog && git add CHANGELOG.md",
-    "changelog": "versionist"
+    "readme": "jsdoc2md --template doc/README.hbs lib/index.js > README.md"
   },
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
@@ -39,8 +36,7 @@
     "eslint": "^3.14.0",
     "jsdoc-to-markdown": "^2.0.1",
     "mocha": "^3.2.0",
-    "mochainon": "^1.0.0",
-    "versionist": "^2.8.1"
+    "mochainon": "^1.0.0"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
