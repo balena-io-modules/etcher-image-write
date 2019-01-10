@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.4 - 2019-01-10
+
+### Misc
+
+- Remove versionist
+- Update drivelist to ^6.4.4
+
 ## v9.1.3 - 2017-05-09
 
 ### Changed
