@@ -49,7 +49,7 @@
     "crc32-stream": "^1.0.1",
     "debug": "^2.6.6",
     "dev-null-stream": "0.0.1",
-    "drivelist": "^5.0.14",
+    "drivelist": "^6.4.4",
     "error": "^7.0.2",
     "lodash": "^4.17.4",
     "progress-stream": "^1.2.0",
