@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.5 - 2019-05-29
+
+### Misc
+
+- update dependencies for Node 12 compilation
+
 ## v9.1.4 - 2019-01-10
 
 ### Misc
