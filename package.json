@@ -33,26 +33,26 @@
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "electron-mocha": "^3.3.0",
-    "eslint": "^3.14.0",
-    "jsdoc-to-markdown": "^2.0.1",
-    "mocha": "^3.2.0",
+    "electron-mocha": "^3.5.0",
+    "eslint": "^3.19.0",
+    "jsdoc-to-markdown": "^5.0.3",
+    "mocha": "^3.5.3",
     "mochainon": "^1.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.4.7",
+    "bluebird": "^3.7.2",
     "bluebird-retry": "^0.10.1",
-    "bmapflash": "^1.2.1",
+    "bmapflash": "^1.2.2",
     "crc32-stream": "^1.0.1",
-    "debug": "^2.6.6",
+    "debug": "^2.6.9",
     "dev-null-stream": "0.0.1",
-    "drivelist": "^8.0.6",
-    "error": "^7.0.2",
-    "lodash": "^4.17.4",
-    "progress-stream": "^1.2.0",
+    "drivelist": "^8.0.10",
+    "error": "^7.2.1",
+    "lodash": "^4.17.15",
+    "progress-stream": "^2.0.0",
     "slice-stream2": "^2.0.1",
     "stream-chunker": "^1.2.8",
-    "through2": "^2.0.3",
+    "through2": "^2.0.5",
     "tmp": "0.0.31"
   }
 }
