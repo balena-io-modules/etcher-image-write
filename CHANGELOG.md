@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.7 - 2020-12-11
+
 ## v9.1.6 - 2020-03-03
 
 ### Misc
