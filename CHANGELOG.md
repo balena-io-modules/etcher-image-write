@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v9.1.7 - 2021-03-12
+
+### Misc
+
+- Bump drivelist @ 9.2.4
+
 ## v9.1.6 - 2020-03-03
 
 ### Misc
