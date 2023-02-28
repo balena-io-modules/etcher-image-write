@@ -33,10 +33,10 @@
   "author": "Juan Cruz Viotti <juan@resin.io>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "electron-mocha": "^3.5.0",
+    "electron-mocha": "^11.0.2",
     "eslint": "^3.19.0",
     "jsdoc-to-markdown": "^5.0.3",
-    "mocha": "^3.5.3",
+    "mocha": "^10.2.0",
     "mochainon": "^1.0.0"
   },
   "dependencies": {
