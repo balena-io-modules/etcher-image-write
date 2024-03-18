@@ -1,12 +1,12 @@
+# Deprecated
+This project is deprecated and archived. Please don't use it for anything other than learning purposes.
+
+You can find a better alternative to this project at https://github.com/balena-io-modules/etcher-sdk
+
 etcher-image-write
 =================
 
 > The cross-platform way to stream an OS image to a device
-
-[![npm version](https://badge.fury.io/js/etcher-image-write.svg)](http://badge.fury.io/js/etcher-image-write)
-[![dependencies](https://david-dm.org/resin-io-modules/etcher-image-write.svg)](https://david-dm.org/resin-io-modules/etcher-image-write.svg)
-[![Build Status](https://travis-ci.org/resin-io-modules/etcher-image-write.svg?branch=master)](https://travis-ci.org/resin-io-modules/etcher-image-write)
-[![Build status](https://ci.appveyor.com/api/projects/status/nmjinr68wtd9ne2h/branch/master?svg=true)](https://ci.appveyor.com/project/resin-io/etcher-image-write/branch/master)
 
 Installation
 ------------
